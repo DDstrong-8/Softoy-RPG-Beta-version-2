@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Softoy RPG — Axol Rescue</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif}
+button{border:0;border-radius:14px;padding:13px 18px;font-size:16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+
+.screen{display:none;position:absolute;inset:0}
+.screen.active{display:block}
+
+/* =====================================================
+   WORLD
+===================================================== */
+
+#world{
+    background:
+    linear-gradient(to bottom,#8bdcf4 0%,#8bdcf4 48%,#b8e66d 48%,#b8e66d 100%);
+}
+
+.sun{
+    position:absolute;
+    width:65px;height:65px;
+    right:8%;top:8%;
+    border-radius:50%;
+    background:#fff1a0;
+}
+
+.hill1,.hill2{
+    position:absolute;
+    bottom:38%;
+    width:60%;height:23%;
+    border-radius:50% 50% 0 0;
+    background:#8bc568;
+}
+.hill1{left:-20%}
+.hill2{right:-20%;background:#7db55c}
+
+.grass{
+    position:absolute;
+    left:0;right:0;bottom:0;height:43%;
+    background:
+    repeating-linear-gradient(110deg,transparent 0 17px,#91ca58 18px 20px),
+    #b8e36a;
+}
+
+.river{
+    position:absolute;
+    left:43%;top:30%;width:14%;height:70%;
+    background:linear-gradient(90deg,#4fc0dd,#a3edf5,#4fc0dd);
+    transform:skewX(-5deg);
+}
+
+.bridge{
+    position:absolute;
+    left:34%;top:55%;width:32%;height:14%;
+    background:#a96e43;
+    border:7px solid #70472d;
+    border-radius:12px;
+}
+
+.hechieWorld{
+    position:absolute;
+    left:16%;top:57%;
+    font-size:70px;
+    transition:1s;
+    z-index:5;
+}
+
+.worldTop{
+    position:absolute;
+    top:16px;left:16px;right:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:10;
+}
+
+.areaLabel,.topButton{
+    background:#ffffffdd;
+    padding:11px 16px;
+    border-radius:14px;
+    font-weight:bold;
+}
+
+.topButton{background:#4b9ee8;color:white}
+
+/* =====================================================
+   OVERLAY / MESSAGE
+===================================================== */
+
+.overlay{
+    background:#18304788;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+.overlay.active{display:flex}
+
+.message{
+    width:min(650px,90vw);
+    max-height:88vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:22px;
+    padding:28px;
+    text-align:center;
+    box-shadow:0 20px 60px #0005;
+}
+
+.message h1{margin-top:0}
+.message p{font-size:18px;line-height:1.5}
+
+.primary{background:#4b9ee8;color:#fff}
+
+/* =====================================================
+   BATTLE
+===================================================== */
+
+#battle{
+    background:
+    linear-gradient(to bottom,#8bdcf4 0%,#8bdcf4 48%,#b8e66d 48%,#b8e66d 100%);
+}
+
+.battleHeader{
+    position:absolute;
+    top:14px;left:14px;right:14px;
+    display:flex;
+    justify-content:space-between;
+    z-index:10;
+}
+
+.label{
+    background:#ffffffdd;
+    padding:9px 14px;
+    border-radius:12px;
+    font-weight:bold;
+}
+
+.character{
+    position:absolute;
+    width:155px;
+    text-align:center;
+    transition:opacity .3s;
+}
+
+.character .emoji{font-size:62px}
+.characterName{
+    background:#ffffffdd;
+    padding:4px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.hpBar{
+    width:100%;height:9px;
+    margin-top:5px;
+    background:#d8dfe3;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.hp{
+    height:100%;
+    background:#62c858;
+    width:100%;
+}
+
+.dead{
+    opacity:.25;
+    filter:grayscale(1);
+}
+
+#hechieBattle{left:10%;top:55%}
+#eddieBattle{right:21%;top:43%}
+#armoredBattle{right:4%;top:59%}
+
+.battleMessage{
+    position:absolute;
+    bottom:105px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(700px,90vw);
+    background:#ffffffdd;
+    border-radius:14px;
+    padding:12px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.battleButtons{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    padding:14px;
+    background:#eefaffdd;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+.battleButtons button{background:#fff}
+.battleButtons .primary{background:#4b9ee8;color:#fff}
+
+.attackAnim{animation:attack .55s}
+.hitAnim{animation:hit .35s}
+
+@keyframes attack{
+    50%{transform:translateX(45px)}
+}
+@keyframes hit{
+    50%{transform:translateX(18px)}
+}
+
+.damageNumber{
+    position:fixed;
+    z-index:500;
+    color:red;
+    font-size:30px;
+    font-weight:1000;
+    pointer-events:none;
+    animation:damageFloat 1s forwards;
+}
+
+@keyframes damageFloat{
+    0%{opacity:0;transform:translate(-50%,10px) scale(.8)}
+    20%{opacity:1;transform:translate(-50%,0) scale(1.1)}
+    100%{opacity:0;transform:translate(-50%,-60px)}
+}
+
+/* =====================================================
+   CAGE
+===================================================== */
+
+#cage{
+    background:
+    linear-gradient(to bottom,#8bdcf4 0%,#8bdcf4 48%,#b8e66d 48%,#b8e66d 100%);
+}
+
+.cageTitle{
+    position:absolute;
+    top:25px;left:50%;
+    transform:translateX(-50%);
+    background:#ffffffdd;
+    padding:13px 22px;
+    border-radius:15px;
+    font-size:23px;
+    font-weight:bold;
+}
+
+.cageBox{
+    position:absolute;
+    left:50%;top:45%;
+    transform:translate(-50%,-50%);
+    width:min(350px,72vw);
+    height:290px;
+    border:14px solid #68737b;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#dff6fa55;
+}
+
+.cageBars{
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 35px,#59636b 36px 44px);
+}
+
+.axol{
+    position:relative;
+    z-index:2;
+    font-size:105px;
+}
+
+#unlockButton{
+    position:absolute;
+    bottom:35px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#4b9ee8;
+    color:white;
+}
+
+/* =====================================================
+   MANAGE SQUAD
+===================================================== */
+
+#manage{
+    background:rgba(111,184,222,.86);
+    color:#163449;
+}
+
+.managePanel{
+    position:absolute;
+    inset:5%;
+    background:rgba(224,246,255,.72);
+    border:1px solid #ffffff99;
+    border-radius:24px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+
+.manageHeader{
+    height:68px;
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #ffffffaa;
+}
+
+.manageHeader h1{
+    margin:0;
+    font-size:22px;
+}
+
+.close{
+    background:#ffffffaa;
+    font-size:22px;
+    padding:7px 13px;
+}
+
+.manageBody{
+    flex:1;
+    display:flex;
+    min-height:0;
+}
+
+.sideMenu{
+    width:150px;
+    padding:15px;
+    border-right:1px solid #ffffffaa;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.sideMenu button{
+    background:#ffffff88;
+    color:#163449;
+    text-align:left;
+}
+
+.sideMenu button.selected{
+    background:#4b9ee8;
+    color:white;
+}
+
+.squadArea{
+    flex:1;
+    padding:18px;
+    overflow:auto;
+}
+
+.squadHead{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-bottom:10px;
+    font-weight:bold;
+    text-align:center;
+}
+
+.squadGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.rosterSlot{
+    min-height:75px;
+    background:#ffffff77;
+    border:2px solid #ffffffaa;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:17px;
+    cursor:pointer;
+}
+
+.rosterSlot.hechie{
+    background:#ffffffcc;
+    cursor:not-allowed;
+}
+
+.rosterSlot.axol{
+    background:#b8e66dcc;
+    font-size:17px;
+}
+
+.addRoster{
+    background:#4b9ee8;
+    color:#fff;
+}
+
+.plusRoster{
+    background:#ffffff77;
+}
+
+.newSoftoy{
+    padding:22px;
+    background:#ffffff77;
+    border-radius:18px;
+    margin-top:10px;
+    font-size:22px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.newSoftoy:hover{
+    background:#b8e66dcc;
+}
+
+.menuContent{
+    background:#ffffff55;
+    border-radius:18px;
+    padding:18px;
+}
+
+.menuRow{
+    background:#ffffff88;
+    border-radius:14px;
+    padding:15px;
+    margin:10px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.menuBack{
+    margin-bottom:12px;
+    background:#ffffffaa;
+}
+
+.itemUsable{
+    border:3px solid #65c85a;
+}
+
+.itemBlocked{
+    border:3px solid #e36b6b;
+}
+
+.itemIndicator{
+    font-size:24px;
+}
+
+.questCount{
+    font-weight:bold;
+}
+
+.abilityCard{
+    background:#ffffff77;
+    border-radius:18px;
+    padding:15px;
+    margin-bottom:12px;
+}
+
+.abilityRow{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:8px;
+}
+
+.abilitySlot{
+    background:#ffffff88;
+    padding:11px;
+    border-radius:12px;
+}
+
+.abilitySlot.learnable{
+    background:#b8e66dcc;
+    border:2px solid #50ad4b;
+    cursor:pointer;
+}
+
+.abilitySlot.locked{
+    background:#efaaaacc;
+}
+
+.tutorialBox{
+    background:#ffffffaa;
+    border-radius:18px;
+    padding:18px;
+    line-height:1.5;
+}
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+#settings{
+    background:
+    linear-gradient(to bottom,#8bdcf4,#b8e66d);
+}
+
+.settingsPanel{
+    width:min(600px,90vw);
+    max-height:90vh;
+    overflow:auto;
+    position:absolute;
+    left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    background:#ffffffdd;
+    border-radius:24px;
+    padding:24px;
+}
+
+.settingsPanel button{
+    width:100%;
+    margin:7px 0;
+    background:#dff3fa;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:700px){
+    .sideMenu{width:110px}
+    .squadHead{font-size:13px}
+    .rosterSlot{font-size:13px}
+    .character{width:125px}
+    .character .emoji{font-size:48px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     WORLD
+===================================================== -->
+
+<div id="world" class="screen active">
+
+    <div class="sun"></div>
+    <div class="hill1"></div>
+    <div class="hill2"></div>
+    <div class="grass"></div>
+    <div class="river"></div>
+    <div class="bridge"></div>
+
+    <div id="hechieWorld" class="hechieWorld">🦔</div>
+
+    <div class="worldTop">
+        <div class="areaLabel">🌱 Bed Plains</div>
+
+        <div style="display:flex;gap:8px">
+            <button id="manageWorldButton" class="topButton">
+                👥 Manage Squad
+            </button>
+
+            <button id="settingsWorldButton" class="topButton">
+                ⚙️
+            </button>
+
+            <button id="bridgeButton" class="topButton">
+                Go to Bridge
+            </button>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     GENERAL MESSAGE
+===================================================== -->
+
+<div id="messageScreen" class="screen overlay">
+
+    <div class="message">
+
+        <h1 id="messageTitle">Title</h1>
+
+        <p id="messageText">Text</p>
+
+        <button id="messageContinue" class="primary">
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BATTLE
+===================================================== -->
+
+<div id="battle" class="screen">
+
+    <div class="battleHeader">
+        <div class="label">🦔 SOFTOYS</div>
+        <div class="label">ENEMIES ⚔️</div>
+    </div>
+
+    <div class="character" id="hechieBattle">
+        <div class="emoji">🦔</div>
+        <div class="characterName">Hechie</div>
+        <div class="hpBar">
+            <div id="hechieHP" class="hp"></div>
+        </div>
+    </div>
+
+    <div class="character" id="eddieBattle">
+        <div class="emoji">🦊</div>
+        <div class="characterName">Eddie Minion</div>
+        <div class="hpBar">
+            <div id="eddieHP" class="hp"></div>
+        </div>
+    </div>
+
+    <div class="character" id="armoredBattle">
+        <div class="emoji">🛡️🦊</div>
+        <div class="characterName">Armored Eddie Minion</div>
+        <div class="hpBar">
+            <div id="armoredHP" class="hp"></div>
+        </div>
+    </div>
+
+    <div id="battleMessage" class="battleMessage">
+        Battle begins!
+    </div>
+
+    <div class="battleButtons">
+
+        <button id="attackButton" class="primary">
+            ⚔️ Attack
+        </button>
+
+        <button id="bladeButton">
+            🌿 Blade Cut
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     KEY
+===================================================== -->
+
+<div id="keyScreen" class="screen overlay">
+
+    <div class="message">
+
+        <div style="font-size:90px">🔑</div>
+
+        <h1>Key Obtained!</h1>
+
+        <p>
+            The Eddie Minion and Armored Eddie Minion
+            dropped a key.
+        </p>
+
+        <button id="keyContinue" class="primary">
+            Take Key
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CAGE
+===================================================== -->
+
+<div id="cage" class="screen">
+
+    <div class="cageTitle">
+        🔒 Axol's Cage
+    </div>
+
+    <div class="cageBox">
+
+        <div class="cageBars"></div>
+
+        <div class="axol">🦎</div>
+
+    </div>
+
+    <button id="unlockButton">
+        🔑 Use Key
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     AXOL SAVED
+===================================================== -->
+
+<div id="savedScreen" class="screen overlay">
+
+    <div class="message">
+
+        <div style="font-size:90px">🦎</div>
+
+        <h1>🎉 You unlocked Axol!</h1>
+
+        <p>
+            Axol has been saved!
+        </p>
+
+        <button id="tutorialStart" class="primary">
+            Continue
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MANAGE SQUAD
+===================================================== -->
+
+<div id="manage" class="screen">
+
+    <div class="managePanel">
+
+        <div class="manageHeader">
+
+            <h1>MANAGE SQUAD MENU</h1>
+
+            <button
+                class="close"
+                id="manageClose">
+                ❌
+            </button>
+
+        </div>
+
+        <div class="manageBody">
+
+            <div class="sideMenu">
+
+                <button id="itemsButton">
+                    🎒 ITEMS
+                </button>
+
+                <button id="questsButton">
+                    📜 QUESTS
+                </button>
+
+                <button id="abilitiesButton">
+                    ✨ ABILITIES
+                </button>
+
+            </div>
+
+            <div class="squadArea">
+
+                <div id="manageMain">
+
+                    <div class="squadHead">
+                        <div>IN USE</div>
+                        <div>Remaining Roster</div>
+                    </div>
+
+                    <div class="squadGrid">
+
+                        <div
+                            class="rosterSlot hechie"
+                            id="slot0">
+                            🦔 Hechie
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot4">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot5">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot1">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot2">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot6">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot plusRoster"
+                            id="slot3">
+                            ⭕ +Softoy
+                        </div>
+
+                        <div
+                            class="rosterSlot addRoster"
+                            id="addSoftoyButton">
+                            ＋
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div id="menuContent"
+                     style="display:none">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SETTINGS
+===================================================== -->
+
+<div id="settings" class="screen">
+
+    <div class="settingsPanel">
+
+        <h1>⚙️ Settings</h1>
+
+        <p>
+            Replay tutorials whenever you want.
+        </p>
+
+        <button id="tutorialAxolButton">
+            📖 Replay Axol Rescue Tutorial
+        </button>
+
+        <button id="settingsBack">
+            ↩️ Back to Game
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GAME STATE
+===================================================== */
+
+const game = {
+
+    axolUnlocked:false,
+
+    axolInRoster:false,
+
+    tutorialSeen:false,
+
+    activeMenu:"main",
+
+    quests:[
+        {
+            name:"Sealy's Magic Ball",
+            description:"Give Sealy x1 Magic Ball",
+            progress:"0/1"
+        }
+    ],
+
+    items:{
+        healthPotion:2,
+        antidote:5,
+        energyPill:1,
+        abilityScroll:0,
+        intelStone:0
+    },
+
+    selectedSoftoy:null
+
+};
+
+
+/* =====================================================
+   SCREEN SYSTEM
+===================================================== */
+
+function showScreen(id){
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(function(screen){
+
+            screen.classList.remove("active");
+
+        });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+
+}
+
+
+/* =====================================================
+   MESSAGE SYSTEM
+===================================================== */
+
+function showMessage(title,text,next){
+
+    document
+        .getElementById("messageTitle")
+        .textContent=title;
+
+    document
+        .getElementById("messageText")
+        .textContent=text;
+
+    document
+        .getElementById("messageContinue")
+        .onclick=next;
+
+    showScreen("messageScreen");
+
+}
+
+
+/* =====================================================
+   BRIDGE
+===================================================== */
+
+document
+.getElementById("bridgeButton")
+.onclick=function(){
+
+    const hechie=
+        document.getElementById("hechieWorld");
+
+    hechie.style.left="44%";
+
+    setTimeout(function(){
+
+        showMessage(
+            "⚔️ Hechie encountered enemies!",
+            "An Eddie Minion and an Armored Eddie Minion are guarding the bridge.",
+            startBattle
+        );
+
+    },1000);
+
+};
+
+
+/* =====================================================
+   BATTLE VARIABLES
+===================================================== */
+
+let hechieHP=120;
+let eddieHP=15;
+let armoredHP=35;
+let battleFinished=false;
+
+
+/* =====================================================
+   START BATTLE
+===================================================== */
+
+function startBattle(){
+
+    hechieHP=120;
+    eddieHP=15;
+    armoredHP=35;
+    battleFinished=false;
+
+    updateHP();
+
+    showScreen("battle");
+
+    document
+    .getElementById("battleMessage")
+    .textContent=
+    "The battle begins!";
+
+    disableBattleButtons(true);
+
+    setTimeout(playerTurn,900);
+
+}
+
+
+/* =====================================================
+   PLAYER TURN
+===================================================== */
+
+function playerTurn(){
+
+    if(battleFinished)return;
+
+    if(eddieHP<=0 && armoredHP<=0){
+
+        victory();
+        return;
+
+    }
+
+    if(hechieHP<=0){
+
+        defeat();
+        return;
+
+    }
+
+    document
+    .getElementById("battleMessage")
+    .textContent=
+    "Hechie's turn — choose an attack.";
+
+    disableBattleButtons(false);
+
+}
+
+
+/* =====================================================
+   ATTACK
+===================================================== */
+
+document
+.getElementById("attackButton")
+.onclick=function(){
+
+    disableBattleButtons(true);
+
+    let target=
+        eddieHP>0 ? "eddie" : "armored";
+
+    playerAttack(target,24);
+
+};
+
+
+document
+.getElementById("bladeButton")
+.onclick=function(){
+
+    disableBattleButtons(true);
+
+    let target=
+        eddieHP>0 ? "eddie" : "armored";
+
+    playerAttack(target,43);
+
+};
+
+
+/* =====================================================
+   PLAYER ATTACK
+===================================================== */
+
+function playerAttack(target,damage){
+
+    const attacker=
+        document.getElementById("hechieBattle");
+
+    const targetElement=
+        document.getElementById(
+            target==="eddie"
+            ?"eddieBattle"
+            :"armoredBattle"
+        );
+
+    attacker.classList.add("attackAnim");
+
+    setTimeout(function(){
+
+        targetElement.classList.add("hitAnim");
+
+        let actualDamage;
+
+        if(target==="eddie"){
+
+            actualDamage=
+                Math.max(1,damage-2);
+
+            eddieHP=
+                Math.max(0,eddieHP-actualDamage);
+
+        }else{
+
+            actualDamage=
+                Math.max(1,damage-6);
+
+            armoredHP=
+                Math.max(0,armoredHP-actualDamage);
+
+        }
+
+        updateHP();
+
+        showDamage(
+            targetElement,
+            actualDamage
+        );
+
+    },300);
+
+
+    setTimeout(function(){
+
+        attacker.classList.remove("attackAnim");
+        targetElement.classList.remove("hitAnim");
+
+    },700);
+
+
+    setTimeout(function(){
+
+        if(eddieHP<=0 && armoredHP<=0){
+
+            victory();
+
+        }else{
+
+            enemyTurns();
+
+        }
+
+    },900);
+
+}
+
+
+/* =====================================================
+   ENEMY TURNS
+===================================================== */
+
+function enemyTurns(){
+
+    if(battleFinished)return;
+
+    document
+    .getElementById("battleMessage")
+    .textContent=
+    "Enemy turns...";
+
+    disableBattleButtons(true);
+
+
+    if(eddieHP>0){
+
+        setTimeout(function(){
+
+            enemyAttack(3);
+
+        },600);
+
+    }
+
+
+    if(armoredHP>0){
+
+        setTimeout(function(){
+
+            enemyAttack(4);
+
+        },1400);
+
+    }
+
+
+    setTimeout(function(){
+
+        if(hechieHP<=0){
+
+            defeat();
+
+        }else{
+
+            playerTurn();
+
+        }
+
+    },2300);
+
+}
+
+
+/* =====================================================
+   ENEMY ATTACK
+===================================================== */
+
+function enemyAttack(attack){
+
+    const enemy=
+        event && event.currentTarget
+        ?event.currentTarget
+        :null;
+
+    const hechie=
+        document.getElementById("hechieBattle");
+
+    hechie.classList.add("hitAnim");
+
+    const damage=
+        Math.max(1,attack-8);
+
+    hechieHP=
+        Math.max(0,hechieHP-damage);
+
+    updateHP();
+
+    showDamage(
+        hechie,
+        damage
+    );
+
+    setTimeout(function(){
+
+        hechie.classList.remove("hitAnim");
+
+    },400);
+
+}
+
+
+/* =====================================================
+   HP
+===================================================== */
+
+function updateHP(){
+
+    document
+    .getElementById("hechieHP")
+    .style.width=
+        (hechieHP/120*100)+"%";
+
+    document
+    .getElementById("eddieHP")
+    .style.width=
+        (eddieHP/15*100)+"%";
+
+    document
+    .getElementById("armoredHP")
+    .style.width=
+        (armoredHP/35*100)+"%";
+
+
+    document
+    .getElementById("hechieBattle")
+    .classList.toggle(
+        "dead",
+        hechieHP<=0
+    );
+
+    document
+    .getElementById("eddieBattle")
+    .classList.toggle(
+        "dead",
+        eddieHP<=0
+    );
+
+    document
+    .getElementById("armoredBattle")
+    .classList.toggle(
+        "dead",
+        armoredHP<=0
+    );
+
+}
+
+
+/* =====================================================
+   DAMAGE NUMBERS
+===================================================== */
+
+function showDamage(target,amount){
+
+    const rect=
+        target.getBoundingClientRect();
+
+    const number=
+        document.createElement("div");
+
+    number.className="damageNumber";
+
+    number.textContent=amount;
+
+    number.style.left=
+        (rect.left+rect.width/2)+"px";
+
+    number.style.top=
+        (rect.top+rect.height/3)+"px";
+
+    document.body.appendChild(number);
+
+    setTimeout(function(){
+
+        number.remove();
+
+    },1000);
+
+}
+
+
+/* =====================================================
+   BATTLE BUTTONS
+===================================================== */
+
+function disableBattleButtons(disabled){
+
+    document
+    .getElementById("attackButton")
+    .disabled=disabled;
+
+    document
+    .getElementById("bladeButton")
+    .disabled=disabled;
+
+}
+
+
+/* =====================================================
+   VICTORY
+===================================================== */
+
+function victory(){
+
+    if(battleFinished)return;
+
+    battleFinished=true;
+
+    disableBattleButtons(true);
+
+    document
+    .getElementById("battleMessage")
+    .textContent=
+        "Victory! The enemies dropped a key.";
+
+    setTimeout(function(){
+
+        showScreen("keyScreen");
+
+    },900);
+
+}
+
+
+/* =====================================================
+   DEFEAT
+===================================================== */
+
+function defeat(){
+
+    if(battleFinished)return;
+
+    battleFinished=true;
+
+    disableBattleButtons(true);
+
+    showMessage(
+        "Defeated",
+        "Hechie was defeated. Try the bridge battle again.",
+        startBattle
+    );
+
+}
+
+
+/* =====================================================
+   KEY
+===================================================== */
+
+document
+.getElementById("keyContinue")
+.onclick=function(){
+
+    showScreen("cage");
+
+};
+
+
+/* =====================================================
+   UNLOCK AXOL
+===================================================== */
+
+document
+.getElementById("unlockButton")
+.onclick=function(){
+
+    const button=
+        document.getElementById("unlockButton");
+
+    button.disabled=true;
+
+    button.textContent=
+        "🔓 Unlocking...";
+
+
+    setTimeout(function(){
+
+        game.axolUnlocked=true;
+
+        showScreen("savedScreen");
+
+    },900);
+
+};
+
+
+/* =====================================================
+   AXOL TUTORIAL
+===================================================== */
+
+document
+.getElementById("tutorialStart")
+.onclick=function(){
+
+    startAxolTutorial();
+
+};
+
+
+function startAxolTutorial(){
+
+    showMessage(
+        "📖 Tutorial — Manage Squad",
+        "You unlocked Axol! Open the Manage Squad button at the top-left of the game screen to manage your Softoys.",
+        tutorialStep2
+    );
+
+}
+
+
+function tutorialStep2(){
+
+    showMessage(
+        "👥 Manage Squad",
+        "The three large slots are your IN USE Softoys. The smaller slots are your Remaining Roster.",
+        tutorialStep3
+    );
+
+}
+
+
+function tutorialStep3(){
+
+    showMessage(
+        "➕ Add a Softoy",
+        "Use the + button to see newly unlocked Softoys. Select +Axol to add Axol to your roster.",
+        tutorialStep4
+    );
+
+}
+
+
+function tutorialStep4(){
+
+    showMessage(
+        "🎒 Items",
+        "Items let you heal Softoys, cure status effects, restore energy, or use special learning items.",
+        tutorialStep5
+    );
+
+}
+
+
+function tutorialStep5(){
+
+    showMessage(
+        "📜 Quests",
+        "Quests keep track of what NPCs want you to do. You can have up to two side quests at once, plus one main story quest.",
+        tutorialStep6
+    );
+
+}
+
+
+function tutorialStep6(){
+
+    showMessage(
+        "✨ Abilities",
+        "Abilities shows each Softoy's abilities. Some abilities unlock automatically at certain levels, while other slots can be learned using Ability Scrolls or Intel Stones.",
+        tutorialFinish
+    );
+
+}
+
+
+function tutorialFinish(){
+
+    game.tutorialSeen=true;
+
+    showMessage(
+        "🎉 Tutorial Complete!",
+        "You can replay this tutorial at any time from Settings.",
+        openManage
+    );
+
+}
+
+
+/* =====================================================
+   MANAGE SQUAD OPEN
+===================================================== */
+
+function openManage(){
+
+    showScreen("manage");
+
+    game.activeMenu="main";
+
+    renderManageMain();
+
+}
+
+
+document
+.getElementById("manageWorldButton")
+.onclick=openManage;
+
+
+/* =====================================================
+   MANAGE CLOSE
+===================================================== */
+
+document
+.getElementById("manageClose")
+.onclick=function(){
+
+    showScreen("world");
+
+};
+
+
+/* =====================================================
+   MANAGE MAIN
+===================================================== */
+
+function renderManageMain(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="block";
+
+    document
+    .getElementById("menuContent")
+    .style.display="none";
+
+
+    const slot0=
+        document.getElementById("slot0");
+
+    const slot1=
+        document.getElementById("slot1");
+
+    const slot2=
+        document.getElementById("slot2");
+
+    const slot3=
+        document.getElementById("slot3");
+
+    const slot4=
+        document.getElementById("slot4");
+
+    const slot5=
+        document.getElementById("slot5");
+
+    const slot6=
+        document.getElementById("slot6");
+
+
+    slot0.textContent="🦔 Hechie";
+
+
+    [slot1,slot2,slot3,slot4,slot5,slot6]
+    .forEach(function(slot){
+
+        slot.textContent="⭕ +Softoy";
+
+        slot.classList.remove("axol");
+
+    });
+
+
+    if(game.axolInRoster){
+
+        slot1.textContent="🦎 Axol";
+        slot1.classList.add("axol");
+
+    }
+
+
+    slot0.onclick=function(){
+
+        showMessage(
+            "Hechie cannot be swapped",
+            "Hechie is the main character and cannot be swapped with another Softoy.",
+            openManage
+        );
+
+    };
+
+
+    if(game.axolInRoster){
+
+        slot1.onclick=function(){
+
+            enterSwapMode();
+
+        };
+
+    }
+
+
+    document
+    .getElementById("addSoftoyButton")
+    .onclick=openNewSoftoyMenu;
+
+}
+
+
+/* =====================================================
+   NEW SOFTOYS
+===================================================== */
+
+function openNewSoftoyMenu(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="none";
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.style.display="block";
+
+    content.innerHTML=`
+
+        <button class="menuBack" id="newSoftoyBack">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>NEWLY UNLOCKED SOFTOYS</h2>
+
+        <div
+            class="newSoftoy"
+            id="axolNewButton">
+            ＋ AXOL
+        </div>
+
+    `;
+
+
+    document
+    .getElementById("newSoftoyBack")
+    .onclick=openManage;
+
+
+    document
+    .getElementById("axolNewButton")
+    .onclick=function(){
+
+        game.axolInRoster=true;
+
+        openManage();
+
+        showMessage(
+            "🦎 Axol Added!",
+            "Axol has automatically been placed into the first available roster position.",
+            openManage
+        );
+
+    };
+
+}
+
+
+/* =====================================================
+   SWAP MODE
+===================================================== */
+
+function enterSwapMode(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="none";
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.style.display="block";
+
+    content.innerHTML=`
+
+        <button class="menuBack" id="swapBack">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>SWAP SOFTOY</h2>
+
+        <div class="menuRow">
+            🦎 Axol
+            <span>Select a slot to swap.</span>
+        </div>
+
+        <div class="menuRow">
+            🦔 Hechie
+            <span>Cannot be swapped.</span>
+        </div>
+
+        <div class="menuRow">
+            ⭕ Empty Slot
+            <span>Available.</span>
+        </div>
+
+    `;
+
+
+    document
+    .getElementById("swapBack")
+    .onclick=openManage;
+
+}
+
+
+/* =====================================================
+   ITEMS
+===================================================== */
+
+document
+.getElementById("itemsButton")
+.onclick=openItems;
+
+
+function openItems(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="none";
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.style.display="block";
+
+
+    content.innerHTML=`
+
+        <button class="menuBack" id="itemsBack">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>ITEMS</h2>
+
+        <div class="menuRow">
+            ❤️ x${game.items.healthPotion}
+            Health Potion
+        </div>
+
+        <div class="menuRow">
+            💊 x${game.items.antidote}
+            Antidote
+        </div>
+
+        <div class="menuRow">
+            ⚡ x${game.items.energyPill}
+            Energy Pill
+        </div>
+
+        <h3>Use an item</h3>
+
+        <div class="menuRow itemUsable"
+             onclick="useHealthPotion()">
+            ❤️ Health Potion
+            <span class="itemIndicator">🟢</span>
+        </div>
+
+        <div class="menuRow itemBlocked">
+            💊 Antidote
+            <span class="itemIndicator">🔴</span>
+        </div>
+
+        <div class="menuRow itemBlocked">
+            ⚡ Energy Pill
+            <span class="itemIndicator">🔴</span>
+        </div>
+
+    `;
+
+
+    document
+    .getElementById("itemsBack")
+    .onclick=openManage;
+
+}
+
+
+/* =====================================================
+   HEALTH POTION
+===================================================== */
+
+function useHealthPotion(){
+
+    if(game.items.healthPotion<=0)return;
+
+    game.items.healthPotion--;
+
+    showMessage(
+        "❤️ Health Potion",
+        "Only Softoys who are not at full HP can receive a Health Potion. In this test, Hechie is the valid target.",
+        openManage
+    );
+
+}
+
+
+/* =====================================================
+   QUESTS
+===================================================== */
+
+document
+.getElementById("questsButton")
+.onclick=openQuests;
+
+
+function openQuests(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="none";
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.style.display="block";
+
+
+    let questHTML="";
+
+
+    game.quests.forEach(function(q){
+
+        questHTML+=`
+
+            <div class="menuRow">
+
+                <div>
+                    <strong>${q.name}</strong><br>
+                    ${q.description}
+                </div>
+
+                <div class="questCount">
+                    (${q.progress})
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+
+    content.innerHTML=`
+
+        <button class="menuBack" id="questsBack">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>QUESTS</h2>
+
+        <div class="tutorialBox">
+            Active quests: ${game.quests.length}/3
+            <br><br>
+            One slot is reserved for the main story quest.
+            You can have up to two side quests at the same time.
+        </div>
+
+        ${questHTML}
+
+        <button
+            id="fakeQuestButton"
+            class="primary"
+            style="margin-top:12px">
+            ＋ Try to Add Side Quest
+        </button>
+
+    `;
+
+
+    document
+    .getElementById("questsBack")
+    .onclick=openManage;
+
+
+    document
+    .getElementById("fakeQuestButton")
+    .onclick=function(){
+
+        if(game.quests.length>=3){
+
+            showMessage(
+                "Too Many Quests",
+                "You have too many Quests active. Please complete them first.",
+                openQuests
+            );
+
+        }else{
+
+            game.quests.push({
+                name:"Example Side Quest",
+                description:"Example objective",
+                progress:"0/1"
+            });
+
+            openQuests();
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   ABILITIES
+===================================================== */
+
+document
+.getElementById("abilitiesButton")
+.onclick=openAbilities;
+
+
+function openAbilities(){
+
+    document
+    .getElementById("manageMain")
+    .style.display="none";
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.style.display="block";
+
+
+    content.innerHTML=`
+
+        <button class="menuBack" id="abilitiesBack">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>ABILITIES</h2>
+
+        <div
+            class="abilityCard"
+            onclick="openAxolAbilities()">
+            🦎 AXOL
+        </div>
+
+        <div
+            class="abilityCard"
+            onclick="openHechieAbilities()">
+            🦔 HECHIE
+        </div>
+
+    `;
+
+
+    document
+    .getElementById("abilitiesBack")
+    .onclick=openManage;
+
+}
+
+
+/* =====================================================
+   AXOL ABILITIES
+===================================================== */
+
+function openAxolAbilities(){
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.innerHTML=`
+
+        <button class="menuBack"
+                onclick="openAbilities()">
+            ↩️ Back to Abilities
+        </button>
+
+        <div class="abilityCard">
+
+            <h2>🦎 AXOL</h2>
+
+            <div class="abilitySlot">
+                Lvl 1 — Power Spray
+            </div>
+
+            <div class="abilityRow">
+
+                <div class="abilitySlot">
+                    Lvl 10 — ???
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 99 — ???
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 25 — ???
+                </div>
+
+                <div
+                    class="abilitySlot learnable"
+                    onclick="tryLearnAbility()">
+                    🟢 + New ability
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 50 — ???
+                </div>
+
+                <div
+                    class="abilitySlot learnable"
+                    onclick="tryLearnAbility()">
+                    🟢 + New ability
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 75 — ???
+                </div>
+
+                <div
+                    class="abilitySlot learnable"
+                    onclick="tryLearnAbility()">
+                    🟢 + New ability
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   HECHIE ABILITIES
+===================================================== */
+
+function openHechieAbilities(){
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.innerHTML=`
+
+        <button class="menuBack"
+                onclick="openAbilities()">
+            ↩️ Back to Abilities
+        </button>
+
+        <div class="abilityCard">
+
+            <h2>🦔 HECHIE</h2>
+
+            <div class="abilitySlot">
+                Lvl 1 — Blade Slash
+            </div>
+
+            <div class="abilityRow">
+
+                <div class="abilitySlot">
+                    Lvl 10 — ???
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 99 — ???
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 25 — ???
+                </div>
+
+                <div class="abilitySlot locked">
+                    🔴 + New ability
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 50 — ???
+                </div>
+
+                <div class="abilitySlot locked">
+                    🔴 + New ability
+                </div>
+
+                <div class="abilitySlot">
+                    Lvl 75 — ???
+                </div>
+
+                <div class="abilitySlot locked">
+                    🔴 + New ability
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   LEARNING ABILITY
+===================================================== */
+
+function tryLearnAbility(){
+
+    openItemsForAbilityLearning();
+
+}
+
+
+function openItemsForAbilityLearning(){
+
+    const content=
+        document.getElementById("menuContent");
+
+    content.innerHTML=`
+
+        <button class="menuBack"
+                onclick="openAbilities()">
+            ↩️ Back to Manage Squad
+        </button>
+
+        <h2>ITEMS</h2>
+
+        <div class="menuRow">
+            ❤️ x${game.items.healthPotion}
+        </div>
+
+        <div class="menuRow">
+            💊 x${game.items.antidote}
+        </div>
+
+        <div class="menuRow">
+            ⚡ x${game.items.energyPill}
+        </div>
+
+        <div class="menuRow itemBlocked">
+            📜 Ability Scroll
+            <span>🔴</span>
+        </div>
+
+        <div class="menuRow itemBlocked">
+            💎 Intel Stone
+            <span>🔴</span>
+        </div>
+
+        <div class="tutorialBox">
+            NO ABILITIES TO LEARN!
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+document
+.getElementById("settingsWorldButton")
+.onclick=function(){
+
+    showScreen("settings");
+
+};
+
+
+document
+.getElementById("settingsBack")
+.onclick=function(){
+
+    showScreen("world");
+
+};
+
+
+document
+.getElementById("tutorialAxolButton")
+.onclick=function(){
+
+    startAxolTutorial();
+
+};
+
+
+/* =====================================================
+   AUTO OPEN MANAGE AFTER TUTORIAL
+===================================================== */
+
+/*
+   After the tutorial is complete, the player is
+   brought to Manage Squad.
+
+   Axol has NOT yet been automatically added.
+   The player must use the + button as designed.
+*/
+
+
+/* =====================================================
+   INITIAL STATE
+===================================================== */
+
+renderManageMain();
+
+</script>
+
+</body>
+</html>
