@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Softoy RPG - Axol Rescue Test</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;font-family:Arial,sans-serif;overflow:hidden;color:#173047}button{border:0;border-radius:14px;padding:13px 18px;font-weight:800;font-size:16px}
+.screen{display:none;position:absolute;inset:0}.active{display:block}
+#world{background:linear-gradient(#8ddcf2 0 44%,#b9e66f 44%)}.world{position:absolute;inset:0}
+.sun{position:absolute;right:9%;top:8%;width:65px;height:65px;border-radius:50%;background:#fff3a0}
+.hill{position:absolute;bottom:38%;width:55%;height:24%;border-radius:50% 50% 0 0;background:#8bc56a}.h1{left:-10%}.h2{right:-15%;background:#7eb85f}
+.grass{position:absolute;inset:auto 0 0;height:43%;background:repeating-linear-gradient(115deg,transparent 0 17px,#91cb5b 18px 20px),#b8e46c}
+.river{position:absolute;left:43%;top:30%;width:14%;height:70%;background:linear-gradient(90deg,#52c4df,#a5edf4,#52c4df);transform:skewX(-5deg)}
+.bridge{position:absolute;left:35%;top:55%;width:30%;height:14%;background:#a76d42;border:7px solid #70472d;border-radius:12px;z-index:2}
+.cage{position:absolute;left:70%;top:54%;width:135px;height:130px;border:8px solid #68717a;border-radius:10px;background:#d9eef455;display:grid;place-items:center;z-index:4}
+.cage:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 20px,#68717a 21px 27px)}
+.sprite{font-size:58px;position:relative;z-index:2}.hechie{position:absolute;left:18%;top:57%;font-size:68px;z-index:5;transition:.6s}
+.top{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;z-index:10}.card{background:#ffffffbd;padding:12px 16px;border-radius:15px;font-weight:900}
+.msg{background:#17304788;display:grid;place-items:center;z-index:30}.box{background:#f7fcff;width:min(620px,88vw);padding:28px;border-radius:22px;text-align:center;box-shadow:0 18px 50px #0004}.box h2{margin-top:0}.box p{font-size:19px;line-height:1.45}.primary{background:#4d9eea;color:white}
+#battle{background:#aee1ed}.battlebg{position:absolute;inset:0;background:radial-gradient(circle at 82% 15%,#fff3a0 0 35px,transparent 36px),linear-gradient(#8ddcf2 0 46%,#b8e06f 46%)}.battlebg:before{content:"";position:absolute;left:-5%;bottom:34%;width:58%;height:23%;border-radius:50%;background:#8bc56a}.battlebg:after{content:"";position:absolute;right:-8%;bottom:36%;width:60%;height:21%;border-radius:50%;background:#7eb85f}
+.side{position:absolute;top:16px;background:#ffffffbd;padding:8px 13px;border-radius:12px;font-weight:900;z-index:4}.left{left:18px}.right{right:18px}.order{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:#ffffffc9;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:900;z-index:4}
+.fighters{position:absolute;inset:0;z-index:3}.fighter{position:absolute;width:120px;text-align:center;transition:.3s}.fighter .fs{font-size:62px;display:inline-block;filter:drop-shadow(0 7px 4px #0003)}.name{background:#ffffffc9;border-radius:8px;padding:4px;font-size:12px;font-weight:900}.hp{height:8px;background:#dbe3e8;border-radius:8px;overflow:hidden}.fill{height:100%;background:#67c95b;transition:.3s}.dead{opacity:.25;filter:grayscale(1)}.hit .fs{animation:hit .35s}.attack .fs{animation:lunge .6s}@keyframes hit{45%{transform:translateX(22px)}}@keyframes lunge{45%{transform:translateX(48px)}}.controls{position:absolute;bottom:0;left:0;right:0;background:#f0faffdf;padding:14px;display:flex;gap:10px;justify-content:center;z-index:8}.controls button{background:white;box-shadow:0 3px 10px #0002}.controls .primary{background:#4d9eea}.log{position:absolute;bottom:88px;left:50%;transform:translateX(-50%);width:min(650px,84vw);background:#ffffffd9;padding:10px 14px;border-radius:13px;text-align:center;font-weight:900;z-index:8}
+.float{position:fixed;z-index:50;font-size:30px;font-weight:1000;animation:float 1s forwards;pointer-events:none}.damage{color:#e63737}.heal{color:#79d83f}@keyframes float{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.05)}100%{opacity:0;transform:translate(-50%,-55px)}}
+#cageScreen{background:linear-gradient(#8ddcf2 0 48%,#b8e46f 48%)}.bigcage{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:min(340px,65vw);height:290px;border:14px solid #65717b;border-radius:18px;background:#dff6fa55;display:grid;place-items:center}.bigcage:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 34px,#59636c 35px 44px)}.title{position:absolute;top:25px;left:50%;transform:translateX(-50%);background:#ffffffd9;padding:13px 22px;border-radius:15px;font-size:23px;font-weight:900}.unlock{position:absolute;bottom:35px;left:50%;transform:translateX(-50%);background:#4d9eea;color:white}
+@media(max-width:700px){.fighter{width:90px}.fighter .fs{font-size:52px}.controls button{font-size:13px;padding:11px 9px}.order{max-width:65vw}}
+</style>
+</head>
+<body>
+<div id="world" class="screen active">
+<div class="world"><div class="sun"></div><div class="hill h1"></div><div class="hill h2"></div><div class="grass"></div><div class="river"></div><div class="bridge"></div>
+<div id="cage" class="cage"><span class="sprite">🦎</span></div><div id="hw" class="hechie">🦔</div>
+<div class="top"><div class="card">🌱 Bed Plains</div><button id="bridgeBtn">Go to Bridge</button></div></div>
+</div>
+
+<div id="message" class="screen msg"><div class="box"><h2 id="mt"></h2><p id="mx"></p><button id="mb" class="primary">Continue</button></div></div>
+
+<div id="battle" class="screen">
+<div class="battlebg"></div><div class="side left">SOFTOYS</div><div class="side right">ENEMIES</div><div id="order" class="order"></div><div id="fighters" class="fighters"></div><div id="log" class="log"></div>
+<div class="controls"><button id="atk" class="primary">⚔️ Attack</button><button id="abil">✨ Ability</button><button id="def">🛡️ Defend</button></div>
+</div>
+
+<div id="cageScreen" class="screen"><div class="title">🔒 Axol's Cage</div><div class="bigcage"><span class="sprite" style="font-size:105px">🦎</span></div><button id="unlock" class="unlock">🔑 Use Key to Unlock Cage</button></div>
+
+<div id="victory" class="screen msg"><div class="box"><h2>🎉 You unlocked Axol!</h2><p>The cage is open and Axol has been saved.</p><p>This test ends here. The next version can connect the rescue to Manage Squad.</p><button id="back" class="primary">Return to Bed Plains</button></div></div>
+
+<script>
+const $=id=>document.getElementById(id), screens=["world","message","battle","cageScreen","victory"];
+function show(id){screens.forEach(x=>$(x).classList.remove("active"));$(id).classList.add("active")}
+function msg(t,x,next){$("mt").textContent=t;$("mx").textContent=x;$("mb").onclick=next;show("message")}
+$("bridgeBtn").onclick=()=>{$("hw").style.left="46%";setTimeout(()=>msg("⚔️ Bridge Battle!","Hechie reaches the bridge. Eddie Minion and Armored Eddie Minion are guarding the way!",startBattle),650)}
+
+const fs=[
+{id:"h",name:"Hechie",side:"p",speed:25,hp:120,max:120,atk:24,def:8,s:"🦔",x:"18%",y:"57%"},
+{id:"e",name:"Eddie Minion",side:"e",speed:5,hp:15,max:15,atk:3,def:2,s:"🦊",x:"70%",y:"48%"},
+{id:"a",name:"Armored Eddie",side:"e",speed:2,hp:35,max:35,atk:4,def:6,s:"🛡️🦊",x:"83%",y:"58%"}
+];
+let round=1,idx=0,order=[],ended=false,player=false;
+function alive(){return fs.filter(f=>f.hp>0)}
+function render(){let c=$("fighters");c.innerHTML="";fs.forEach(f=>{let d=document.createElement("div");d.className="fighter";d.id="f"+f.id;d.style.left=f.x;d.style.top=f.y;d.innerHTML=`<div class="fs">${f.s}</div><div class="name">${f.name}</div><div class="hp"><div class="fill"></div></div>`;c.appendChild(d);update(f)})}
+function update(f){let d=$("f"+f.id);if(!d)return;d.querySelector(".fill").style.width=Math.max(0,f.hp/f.max*100)+"%";d.classList.toggle("dead",f.hp<=0)}
+function orderRound(){order=alive().slice().sort((a,b)=>b.speed-a.speed);idx=0;$("order").textContent="Round "+round+": "+order.map(f=>f.name).join(" → ")}
+function startBattle(){round=1;ended=false;fs.forEach(f=>f.hp=f.max);render();show("battle");orderRound();setTimeout(turn,800)}
+function turn(){if(ended||finish())return;if(idx>=order.length){round++;orderRound();setTimeout(turn,650);return}let a=order[idx];if(!a||a.hp<=0){idx++;return setTimeout(turn,200)}player=a.side==="p";$("log").textContent=player?a.name+"'s turn. Choose an action.":a.name+" is preparing to attack...";buttons(!player);if(!player)setTimeout(()=>enemy(a),800)}
+function buttons(dis){["atk","abil","def"].forEach(x=>$(x).disabled=dis)}
+function target(){return fs.find(f=>f.side==="e"&&f.hp>0)}
+function damage(a,t,m=1){let n=Math.max(1,Math.round(a.atk*m)-t.def);t.hp=Math.max(0,t.hp-n);update(t);anim(a,t);float(t,n,"damage");return n}
+function anim(a,t){let A=$("f"+a.id),T=$("f"+t.id);A.classList.add("attack");setTimeout(()=>T.classList.add("hit"),280);setTimeout(()=>{A.classList.remove("attack");T.classList.remove("hit")},700)}
+function float(t,n,type){let d=$("f"+t.id),r=d.getBoundingClientRect(),x=document.createElement("div");x.className="float "+type;x.textContent=n;x.style.left=r.left+r.width/2+"px";x.style.top=r.top+r.height*.3+"px";document.body.appendChild(x);setTimeout(()=>x.remove(),1000)}
+function end(){if(ended)return;if(finish())return;idx++;setTimeout(turn,350)}
+function finish(){let e=fs.some(f=>f.side==="e"&&f.hp>0),p=fs.some(f=>f.side==="p"&&f.hp>0);if(!e){ended=true;buttons(true);$("log").textContent="Victory! The enemies dropped a key.";setTimeout(()=>msg("🔑 You found a Key!","The two enemies dropped a key. Use it to unlock Axol's cage.",()=>show("cageScreen")),900);return true}if(!p){ended=true;setTimeout(()=>msg("Defeated","Hechie was defeated. Restart the bridge battle.",startBattle),600);return true}return false}
+$("atk").onclick=()=>act(1);$("abil").onclick=()=>act(1.5);$("def").onclick=()=>{if(!player)return;buttons(true);$("log").textContent="Hechie is defending.";setTimeout(end,600)}
+function act(m){if(!player||ended)return;buttons(true);let a=order[idx],t=target();$("log").textContent=a.name+(m>1?" uses Blade Burst!":" attacks "+t.name+"!");setTimeout(()=>{let n=damage(a,t,m);$("log").textContent=a.name+" dealt "+n+" damage!"},250);setTimeout(end,950)}
+function enemy(a){let t=fs.find(f=>f.id==="h");if(!t||t.hp<=0)return; $("log").textContent=a.name+" attacks Hechie!";setTimeout(()=>{let n=damage(a,t,a.id==="a"?1.5:1);$("log").textContent=a.name+" dealt "+n+" damage."},250);setTimeout(end,950)}
+$("unlock").onclick=()=>{ $("unlock").disabled=true;$("unlock").textContent="🔓 Unlocking...";setTimeout(()=>show("victory"),850)}
+$("back").onclick=()=>{show("world");$("hw").style.left="18%"}
+render();
+</script>
+</body>
+</html>
