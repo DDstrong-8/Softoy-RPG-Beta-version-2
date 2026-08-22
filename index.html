@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Softoy RPG - Axol Rescue Test</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.screen {
+    display: none;
+    position: absolute;
+    inset: 0;
+}
+
+.screen.active {
+    display: block;
+}
+
+
+/* =====================================================
+   BED PLAINS
+===================================================== */
+
+#world {
+    background:
+        linear-gradient(
+            to bottom,
+            #8bdcf4 0%,
+            #8bdcf4 48%,
+            #b8e66d 48%,
+            #b8e66d 100%
+        );
+}
+
+.sun {
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    right: 8%;
+    top: 8%;
+    border-radius: 50%;
+    background: #fff1a0;
+}
+
+.hill1,
+.hill2 {
+    position: absolute;
+    bottom: 38%;
+    width: 60%;
+    height: 23%;
+    border-radius: 50% 50% 0 0;
+    background: #8bc568;
+}
+
+.hill1 {
+    left: -20%;
+}
+
+.hill2 {
+    right: -20%;
+    background: #7db55c;
+}
+
+.grass {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 43%;
+    background:
+        repeating-linear-gradient(
+            110deg,
+            transparent 0 17px,
+            #91ca58 18px 20px
+        ),
+        #b8e36a;
+}
+
+.river {
+    position: absolute;
+    left: 43%;
+    top: 30%;
+    width: 14%;
+    height: 70%;
+    background:
+        linear-gradient(
+            90deg,
+            #4fc0dd,
+            #a3edf5,
+            #4fc0dd
+        );
+    transform: skewX(-5deg);
+}
+
+.bridge {
+    position: absolute;
+    left: 34%;
+    top: 55%;
+    width: 32%;
+    height: 14%;
+    background: #a96e43;
+    border: 7px solid #70472d;
+    border-radius: 12px;
+}
+
+.hechie {
+    position: absolute;
+    left: 16%;
+    top: 57%;
+    font-size: 70px;
+    transition: 1s;
+    z-index: 5;
+}
+
+.worldTop {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    right: 18px;
+
+    display: flex;
+    justify-content: space-between;
+
+    z-index: 10;
+}
+
+.area {
+    background: #ffffffcc;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-weight: bold;
+}
+
+#bridgeButton {
+    background: #4b9ee8;
+    color: white;
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.overlay {
+    background: #18304788;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.message {
+    width: min(620px, 88vw);
+    background: white;
+    border-radius: 22px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px #0005;
+}
+
+.message h1 {
+    margin-top: 0;
+}
+
+.message p {
+    font-size: 19px;
+    line-height: 1.5;
+}
+
+.primary {
+    background: #4b9ee8;
+    color: white;
+}
+
+
+/* =====================================================
+   BATTLE
+===================================================== */
+
+#battle {
+    background:
+        linear-gradient(
+            to bottom,
+            #8bdcf4 0%,
+            #8bdcf4 48%,
+            #b8e66d 48%,
+            #b8e66d 100%
+        );
+}
+
+.battleHeader {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+
+    display: flex;
+    justify-content: space-between;
+
+    z-index: 10;
+}
+
+.label {
+    background: #ffffffdd;
+    padding: 9px 14px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.battleField {
+    position: absolute;
+    inset: 0;
+}
+
+.character {
+    position: absolute;
+    width: 150px;
+    text-align: center;
+    transition: opacity .3s;
+}
+
+.character .emoji {
+    font-size: 65px;
+}
+
+.characterName {
+    background: #ffffffdd;
+    padding: 4px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.hpBar {
+    width: 100%;
+    height: 9px;
+    margin-top: 5px;
+    background: #d8dfe3;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.hp {
+    height: 100%;
+    background: #62c858;
+    width: 100%;
+}
+
+.dead {
+    opacity: .25;
+    filter: grayscale(1);
+}
+
+#hechieBattle {
+    left: 12%;
+    top: 55%;
+}
+
+#eddieBattle {
+    right: 22%;
+    top: 45%;
+}
+
+#armoredBattle {
+    right: 5%;
+    top: 59%;
+}
+
+.battleMessage {
+    position: absolute;
+    bottom: 105px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: min(650px, 88vw);
+
+    background: #ffffffdd;
+    border-radius: 14px;
+    padding: 12px;
+
+    text-align: center;
+    font-weight: bold;
+}
+
+.battleButtons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding: 14px;
+
+    background: #eefaffdd;
+
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.battleButtons button {
+    background: white;
+}
+
+.battleButtons .primary {
+    background: #4b9ee8;
+    color: white;
+}
+
+.attackAnim {
+    animation: attack .55s;
+}
+
+.hitAnim {
+    animation: hit .35s;
+}
+
+@keyframes attack {
+    50% {
+        transform: translateX(45px);
+    }
+}
+
+@keyframes hit {
+    50% {
+        transform: translateX(18px);
+    }
+}
+
+
+/* =====================================================
+   FLOATING DAMAGE
+===================================================== */
+
+.damageNumber {
+    position: fixed;
+    z-index: 500;
+
+    color: red;
+    font-size: 30px;
+    font-weight: 1000;
+
+    pointer-events: none;
+
+    animation: damageFloat 1s forwards;
+}
+
+@keyframes damageFloat {
+
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, 10px)
+            scale(.8);
+    }
+
+    20% {
+        opacity: 1;
+        transform:
+            translate(-50%, 0)
+            scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -60px);
+    }
+}
+
+
+/* =====================================================
+   CAGE
+===================================================== */
+
+#cage {
+    background:
+        linear-gradient(
+            to bottom,
+            #8bdcf4 0%,
+            #8bdcf4 48%,
+            #b8e66d 48%,
+            #b8e66d 100%
+        );
+}
+
+.cageTitle {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: #ffffffdd;
+    padding: 13px 22px;
+
+    border-radius: 15px;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.cageBox {
+    position: absolute;
+
+    left: 50%;
+    top: 45%;
+
+    transform: translate(-50%, -50%);
+
+    width: min(350px, 70vw);
+    height: 290px;
+
+    border: 14px solid #68737b;
+    border-radius: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #dff6fa55;
+}
+
+.cageBars {
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 35px,
+            #59636b 36px 44px
+        );
+}
+
+.axol {
+    position: relative;
+    z-index: 2;
+    font-size: 105px;
+}
+
+#unlockButton {
+    position: absolute;
+
+    bottom: 35px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    background: #4b9ee8;
+    color: white;
+}
+
+
+/* =====================================================
+   FINAL
+===================================================== */
+
+.finalAxol {
+    font-size: 90px;
+}
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     WORLD
+===================================================== -->
+
+<div id="world" class="screen active">
+
+    <div class="sun"></div>
+
+    <div class="hill1"></div>
+    <div class="hill2"></div>
+
+    <div class="grass"></div>
+
+    <div class="river"></div>
+
+    <div class="bridge"></div>
+
+    <div
+        id="hechieWorld"
+        class="hechie">
+        🦔
+    </div>
+
+    <div class="worldTop">
+
+        <div class="area">
+            🌱 Bed Plains
+        </div>
+
+        <button id="bridgeButton">
+            Go to Bridge
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     GENERAL MESSAGE
+===================================================== -->
+
+<div id="messageScreen"
+     class="screen overlay">
+
+    <div class="message">
+
+        <h1 id="messageTitle">
+            Title
+        </h1>
+
+        <p id="messageText">
+            Text
+        </p>
+
+        <button
+            id="messageContinue"
+            class="primary">
+
+            Continue
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     BATTLE
+===================================================== -->
+
+<div id="battle"
+     class="screen">
+
+    <div class="battleHeader">
+
+        <div class="label">
+            🦔 SOFTOYS
+        </div>
+
+        <div class="label">
+            ENEMIES ⚔️
+        </div>
+
+    </div>
+
+
+    <div class="battleField">
+
+        <!-- HECHIE -->
+
+        <div
+            id="hechieBattle"
+            class="character">
+
+            <div class="emoji">
+                🦔
+            </div>
+
+            <div class="characterName">
+                Hechie
+            </div>
+
+            <div class="hpBar">
+                <div
+                    id="hechieHP"
+                    class="hp">
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- EDDIE -->
+
+        <div
+            id="eddieBattle"
+            class="character">
+
+            <div class="emoji">
+                🦊
+            </div>
+
+            <div class="characterName">
+                Eddie Minion
+            </div>
+
+            <div class="hpBar">
+                <div
+                    id="eddieHP"
+                    class="hp">
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ARMORED -->
+
+        <div
+            id="armoredBattle"
+            class="character">
+
+            <div class="emoji">
+                🛡️🦊
+            </div>
+
+            <div class="characterName">
+                Armored Eddie Minion
+            </div>
+
+            <div class="hpBar">
+                <div
+                    id="armoredHP"
+                    class="hp">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="battleMessage"
+        class="battleMessage">
+
+        Battle begins!
+
+    </div>
+
+
+    <div class="battleButtons">
+
+        <button
+            id="attackButton"
+            class="primary">
+
+            ⚔️ Attack
+
+        </button>
+
+        <button
+            id="bladeButton">
+
+            🌿 Blade Cut
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     KEY
+===================================================== -->
+
+<div
+    id="keyScreen"
+    class="screen overlay">
+
+    <div class="message">
+
+        <div style="font-size:90px;">
+            🔑
+        </div>
+
+        <h1>
+            Key Obtained!
+        </h1>
+
+        <p>
+            The Eddie Minion and Armored Eddie
+            Minion dropped a key.
+        </p>
+
+        <button
+            id="keyContinue"
+            class="primary">
+
+            Take Key
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CAGE
+===================================================== -->
+
+<div id="cage"
+     class="screen">
+
+    <div class="cageTitle">
+        🔒 Axol's Cage
+    </div>
+
+
+    <div class="cageBox">
+
+        <div class="cageBars"></div>
+
+        <div class="axol">
+            🦎
+        </div>
+
+    </div>
+
+
+    <button
+        id="unlockButton">
+
+        🔑 Use Key
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     AXOL SAVED
+===================================================== -->
+
+<div
+    id="savedScreen"
+    class="screen overlay">
+
+    <div class="message">
+
+        <div class="finalAxol">
+            🦎
+        </div>
+
+        <h1>
+            🎉 You unlocked Axol!
+        </h1>
+
+        <p>
+            Axol has been saved!
+        </p>
+
+        <button
+            id="finishButton"
+            class="primary">
+
+            Finish Test
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   SCREEN FUNCTION
+===================================================== */
+
+function showScreen(id) {
+
+    const screens =
+        document.querySelectorAll(".screen");
+
+    screens.forEach(function(screen) {
+
+        screen.classList.remove("active");
+
+    });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
+}
+
+
+/* =====================================================
+   MESSAGE FUNCTION
+===================================================== */
+
+function showMessage(
+    title,
+    text,
+    next
+) {
+
+    document
+        .getElementById("messageTitle")
+        .textContent = title;
+
+    document
+        .getElementById("messageText")
+        .textContent = text;
+
+    document
+        .getElementById("messageContinue")
+        .onclick = next;
+
+    showScreen("messageScreen");
+}
+
+
+/* =====================================================
+   GO TO BRIDGE
+===================================================== */
+
+document
+    .getElementById("bridgeButton")
+    .onclick = function() {
+
+        const hechie =
+            document.getElementById(
+                "hechieWorld"
+            );
+
+        hechie.style.left = "44%";
+
+        setTimeout(function() {
+
+            showMessage(
+                "⚔️ Hechie encountered enemies!",
+                "Hechie reached the bridge and found an Eddie Minion and an Armored Eddie Minion blocking the way.",
+                startBattle
+            );
+
+        }, 1000);
+
+    };
+
+
+/* =====================================================
+   BATTLE VARIABLES
+===================================================== */
+
+let hechieHP = 120;
+
+let eddieHP = 15;
+
+let armoredHP = 35;
+
+let battleFinished = false;
+
+
+/* =====================================================
+   START BATTLE
+===================================================== */
+
+function startBattle() {
+
+    hechieHP = 120;
+    eddieHP = 15;
+    armoredHP = 35;
+
+    battleFinished = false;
+
+    updateHP();
+
+    showScreen("battle");
+
+    document
+        .getElementById("battleMessage")
+        .textContent =
+        "The battle begins!";
+
+    disableBattleButtons(true);
+
+    setTimeout(function() {
+
+        playerTurn();
+
+    }, 1000);
+
+}
+
+
+/* =====================================================
+   PLAYER TURN
+===================================================== */
+
+function playerTurn() {
+
+    if (battleFinished) return;
+
+    if (eddieHP <= 0 &&
+        armoredHP <= 0) {
+
+        victory();
+
+        return;
+    }
+
+    if (hechieHP <= 0) {
+
+        defeat();
+
+        return;
+    }
+
+    document
+        .getElementById("battleMessage")
+        .textContent =
+        "Hechie's turn — choose an attack.";
+
+    disableBattleButtons(false);
+
+}
+
+
+/* =====================================================
+   ATTACK BUTTON
+===================================================== */
+
+document
+    .getElementById("attackButton")
+    .onclick = function() {
+
+        disableBattleButtons(true);
+
+        let target;
+
+        if (eddieHP > 0) {
+
+            target = "eddie";
+
+        } else {
+
+            target = "armored";
+
+        }
+
+        playerAttack(
+            target,
+            24
+        );
+
+    };
+
+
+/* =====================================================
+   BLADE CUT
+===================================================== */
+
+document
+    .getElementById("bladeButton")
+    .onclick = function() {
+
+        disableBattleButtons(true);
+
+        let target;
+
+        if (eddieHP > 0) {
+
+            target = "eddie";
+
+        } else {
+
+            target = "armored";
+
+        }
+
+        playerAttack(
+            target,
+            43
+        );
+
+    };
+
+
+/* =====================================================
+   PLAYER ATTACK
+===================================================== */
+
+function playerAttack(
+    target,
+    damage
+) {
+
+    const attacker =
+        document.getElementById(
+            "hechieBattle"
+        );
+
+    const targetElement =
+        document.getElementById(
+            target === "eddie"
+                ? "eddieBattle"
+                : "armoredBattle"
+        );
+
+
+    attacker.classList.add(
+        "attackAnim"
+    );
+
+
+    setTimeout(function() {
+
+        targetElement.classList.add(
+            "hitAnim"
+        );
+
+
+        if (target === "eddie") {
+
+            eddieHP =
+                Math.max(
+                    0,
+                    eddieHP -
+                    Math.max(
+                        1,
+                        damage - 2
+                    )
+                );
+
+            showDamage(
+                targetElement,
+                damage - 2
+            );
+
+        } else {
+
+            armoredHP =
+                Math.max(
+                    0,
+                    armoredHP -
+                    Math.max(
+                        1,
+                        damage - 6
+                    )
+                );
+
+            showDamage(
+                targetElement,
+                damage - 6
+            );
+
+        }
+
+
+        updateHP();
+
+
+        setTimeout(function() {
+
+            attacker.classList.remove(
+                "attackAnim"
+            );
+
+            targetElement.classList.remove(
+                "hitAnim"
+            );
+
+        }, 400);
+
+
+    }, 300);
+
+
+    setTimeout(function() {
+
+        if (
+            eddieHP <= 0 &&
+            armoredHP <= 0
+        ) {
+
+            victory();
+
+        } else {
+
+            enemyTurns();
+
+        }
+
+    }, 900);
+
+}
+
+
+/* =====================================================
+   ENEMY TURNS
+===================================================== */
+
+function enemyTurns() {
+
+    if (battleFinished) return;
+
+    document
+        .getElementById("battleMessage")
+        .textContent =
+        "The enemies are taking their turns...";
+
+    disableBattleButtons(true);
+
+
+    if (eddieHP > 0) {
+
+        setTimeout(function() {
+
+            enemyAttack(
+                "eddie",
+                3,
+                2
+            );
+
+        }, 700);
+
+    }
+
+
+    if (armoredHP > 0) {
+
+        setTimeout(function() {
+
+            enemyAttack(
+                "armored",
+                4,
+                6
+            );
+
+        }, 1600);
+
+    }
+
+
+    setTimeout(function() {
+
+        if (hechieHP <= 0) {
+
+            defeat();
+
+        } else {
+
+            playerTurn();
+
+        }
+
+    }, 2500);
+
+}
+
+
+/* =====================================================
+   ENEMY ATTACK
+===================================================== */
+
+function enemyAttack(
+    type,
+    attack,
+    defence
+) {
+
+    const enemy =
+        document.getElementById(
+            type === "eddie"
+                ? "eddieBattle"
+                : "armoredBattle"
+        );
+
+    const hechie =
+        document.getElementById(
+            "hechieBattle"
+        );
+
+
+    enemy.classList.add(
+        "attackAnim"
+    );
+
+
+    setTimeout(function() {
+
+        hechie.classList.add(
+            "hitAnim"
+        );
+
+
+        const damage =
+            Math.max(
+                1,
+                attack - 8
+            );
+
+
+        hechieHP =
+            Math.max(
+                0,
+                hechieHP -
+                damage
+            );
+
+
+        updateHP();
+
+        showDamage(
+            hechie,
+            damage
+        );
+
+
+    }, 300);
+
+
+    setTimeout(function() {
+
+        enemy.classList.remove(
+            "attackAnim"
+        );
+
+        hechie.classList.remove(
+            "hitAnim"
+        );
+
+    }, 700);
+
+}
+
+
+/* =====================================================
+   HP UPDATE
+===================================================== */
+
+function updateHP() {
+
+    document
+        .getElementById("hechieHP")
+        .style.width =
+        (hechieHP / 120 * 100) +
+        "%";
+
+
+    document
+        .getElementById("eddieHP")
+        .style.width =
+        (eddieHP / 15 * 100) +
+        "%";
+
+
+    document
+        .getElementById("armoredHP")
+        .style.width =
+        (armoredHP / 35 * 100) +
+        "%";
+
+
+    document
+        .getElementById("eddieBattle")
+        .classList.toggle(
+            "dead",
+            eddieHP <= 0
+        );
+
+
+    document
+        .getElementById("armoredBattle")
+        .classList.toggle(
+            "dead",
+            armoredHP <= 0
+        );
+
+
+    document
+        .getElementById("hechieBattle")
+        .classList.toggle(
+            "dead",
+            hechieHP <= 0
+        );
+
+}
+
+
+/* =====================================================
+   FLOATING DAMAGE
+===================================================== */
+
+function showDamage(
+    target,
+    amount
+) {
+
+    const rect =
+        target.getBoundingClientRect();
+
+
+    const number =
+        document.createElement("div");
+
+    number.className =
+        "damageNumber";
+
+    number.textContent =
+        amount;
+
+
+    number.style.left =
+        (
+            rect.left +
+            rect.width / 2
+        ) + "px";
+
+
+    number.style.top =
+        (
+            rect.top +
+            rect.height / 3
+        ) + "px";
+
+
+    document.body.appendChild(
+        number
+    );
+
+
+    setTimeout(function() {
+
+        number.remove();
+
+    }, 1000);
+
+}
+
+
+/* =====================================================
+   BUTTON CONTROL
+===================================================== */
+
+function disableBattleButtons(
+    disabled
+) {
+
+    document
+        .getElementById("attackButton")
+        .disabled = disabled;
+
+    document
+        .getElementById("bladeButton")
+        .disabled = disabled;
+
+}
+
+
+/* =====================================================
+   VICTORY
+===================================================== */
+
+function victory() {
+
+    if (battleFinished) return;
+
+    battleFinished = true;
+
+    disableBattleButtons(true);
+
+    document
+        .getElementById("battleMessage")
+        .textContent =
+        "Victory! The enemies dropped a key.";
+
+    setTimeout(function() {
+
+        showScreen("keyScreen");
+
+    }, 1000);
+
+}
+
+
+/* =====================================================
+   DEFEAT
+===================================================== */
+
+function defeat() {
+
+    if (battleFinished) return;
+
+    battleFinished = true;
+
+    disableBattleButtons(true);
+
+    showMessage(
+        "Defeated",
+        "Hechie was defeated. Try the bridge battle again.",
+        startBattle
+    );
+
+}
+
+
+/* =====================================================
+   TAKE KEY
+===================================================== */
+
+document
+    .getElementById("keyContinue")
+    .onclick = function() {
+
+        showScreen("cage");
+
+    };
+
+
+/* =====================================================
+   UNLOCK AXOL
+===================================================== */
+
+document
+    .getElementById("unlockButton")
+    .onclick = function() {
+
+        const button =
+            document.getElementById(
+                "unlockButton"
+            );
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "🔓 Unlocking...";
+
+
+        setTimeout(function() {
+
+            showScreen("savedScreen");
+
+        }, 1000);
+
+    };
+
+
+/* =====================================================
+   FINISH
+===================================================== */
+
+document
+    .getElementById("finishButton")
+    .onclick = function() {
+
+        showMessage(
+            "Test Complete",
+            "Axol has been successfully rescued. The next version can connect this to the Manage Squad system.",
+            function() {
+
+                location.reload();
+
+            }
+        );
+
+    };
+
+</script>
+
+</body>
+</html>
