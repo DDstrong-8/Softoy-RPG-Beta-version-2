@@ -1,0 +1,3159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>Softoy RPG — Bed Plains Test</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#101d2c;
+  font-family:Arial,sans-serif;
+}
+
+button{
+  font:inherit;
+  border:0;
+  border-radius:14px;
+  padding:12px 18px;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+/* =====================================================
+   WORLD
+===================================================== */
+
+#world{
+  overflow:hidden;
+  background:#86d7ee;
+}
+
+#camera{
+  position:absolute;
+  width:3200px;
+  height:2200px;
+  left:0;
+  top:0;
+  will-change:transform;
+}
+
+.sky{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      to bottom,
+      #82d8ee 0 31%,
+      #bce57d 31% 100%
+    );
+}
+
+.ground{
+  position:absolute;
+  left:0;
+  top:500px;
+  width:3200px;
+  height:1700px;
+  background:
+    radial-gradient(circle at 12% 20%,#c8ec91 0 100px,transparent 102px),
+    radial-gradient(circle at 30% 65%,#acd96c 0 140px,transparent 142px),
+    radial-gradient(circle at 63% 35%,#c8ec91 0 120px,transparent 122px),
+    radial-gradient(circle at 86% 70%,#a8d66c 0 150px,transparent 152px),
+    repeating-linear-gradient(
+      120deg,
+      transparent 0 35px,
+      #a9d76d 36px 39px
+    ),
+    #b9e27b;
+}
+
+/* =====================================================
+   AREA SHAPES
+===================================================== */
+
+.area{
+  position:absolute;
+  border-radius:50px;
+}
+
+.village{
+  left:90px;
+  top:560px;
+  width:600px;
+  height:580px;
+  background:#cbe994;
+  border:12px solid #91b965;
+}
+
+.plains{
+  left:570px;
+  top:470px;
+  width:2450px;
+  height:1500px;
+  background:
+    radial-gradient(circle at 20% 30%,#d3ed96 0 140px,transparent 142px),
+    radial-gradient(circle at 65% 65%,#a9d86b 0 170px,transparent 172px),
+    radial-gradient(circle at 82% 25%,#caeb91 0 120px,transparent 122px),
+    #b9e37b;
+  border:12px solid #88b25d;
+}
+
+/* =====================================================
+   PATHS
+===================================================== */
+
+.path{
+  position:absolute;
+  background:#ead7a2;
+  border-radius:50px;
+  z-index:2;
+}
+
+.path1{
+  left:480px;
+  top:790px;
+  width:750px;
+  height:130px;
+  transform:rotate(-5deg);
+}
+
+.path2{
+  left:1050px;
+  top:730px;
+  width:130px;
+  height:700px;
+  transform:rotate(7deg);
+}
+
+.path3{
+  left:1070px;
+  top:1260px;
+  width:750px;
+  height:125px;
+  transform:rotate(-4deg);
+}
+
+.path4{
+  left:1700px;
+  top:1070px;
+  width:130px;
+  height:650px;
+  transform:rotate(-9deg);
+}
+
+.path5{
+  left:1740px;
+  top:1070px;
+  width:850px;
+  height:120px;
+  transform:rotate(6deg);
+}
+
+.path6{
+  left:2200px;
+  top:680px;
+  width:120px;
+  height:550px;
+  transform:rotate(5deg);
+}
+
+/* =====================================================
+   LANDMARKS
+===================================================== */
+
+.landmark{
+  position:absolute;
+  z-index:8;
+  text-align:center;
+  font-weight:bold;
+}
+
+.landmarkBox{
+  background:#ffffffdd;
+  padding:10px 14px;
+  border-radius:14px;
+  box-shadow:0 4px 12px #0002;
+}
+
+.lostCaves{
+  left:970px;
+  top:1580px;
+}
+
+.doubleJump{
+  left:2570px;
+  top:1500px;
+}
+
+.bridge{
+  left:1510px;
+  top:930px;
+}
+
+.caveEntrance{
+  font-size:70px;
+}
+
+.templeEntrance{
+  font-size:70px;
+}
+
+/* =====================================================
+   VILLAGE
+===================================================== */
+
+.house{
+  position:absolute;
+  width:125px;
+  height:90px;
+  background:#f3d19b;
+  border:7px solid #9d6c3e;
+  border-radius:12px;
+  z-index:7;
+}
+
+.house:before{
+  content:"";
+  position:absolute;
+  width:145px;
+  height:65px;
+  left:-17px;
+  top:-45px;
+  background:#d36d5c;
+  transform:skewX(-30deg);
+  border-radius:12px;
+}
+
+.house1{
+  left:160px;
+  top:650px;
+}
+
+.house2{
+  left:450px;
+  top:880px;
+}
+
+.villageSign{
+  position:absolute;
+  left:260px;
+  top:600px;
+  z-index:9;
+  background:#ffffffdd;
+  padding:12px 18px;
+  border-radius:14px;
+  font-weight:bold;
+}
+
+.emptyVillage{
+  position:absolute;
+  left:235px;
+  top:780px;
+  z-index:9;
+  color:#6c8156;
+  font-size:23px;
+  font-weight:bold;
+}
+
+/* =====================================================
+   DECORATION
+===================================================== */
+
+.tree,
+.rock,
+.flower{
+  position:absolute;
+  z-index:5;
+}
+
+.tree{
+  width:65px;
+  height:110px;
+}
+
+.tree:before{
+  content:"";
+  position:absolute;
+  width:20px;
+  height:55px;
+  left:23px;
+  bottom:0;
+  background:#755032;
+  border-radius:6px;
+}
+
+.tree:after{
+  content:"🌳";
+  position:absolute;
+  font-size:72px;
+  left:-4px;
+  top:-15px;
+}
+
+.rock{
+  font-size:50px;
+}
+
+.flower{
+  font-size:28px;
+}
+
+.t1{left:760px;top:600px}
+.t2{left:930px;top:1120px}
+.t3{left:1220px;top:560px}
+.t4{left:1450px;top:1450px}
+.t5{left:1850px;top:650px}
+.t6{left:2150px;top:1350px}
+.t7{left:2440px;top:770px}
+.t8{left:2740px;top:1180px}
+.t9{left:2890px;top:1600px}
+
+.r1{left:850px;top:830px}
+.r2{left:1360px;top:720px}
+.r3{left:1900px;top:1180px}
+.r4{left:2350px;top:930px}
+.r5{left:2820px;top:800px}
+
+.f1{left:760px;top:730px}
+.f2{left:1190px;top:1050px}
+.f3{left:1590px;top:620px}
+.f4{left:2080px;top:880px}
+.f5{left:2500px;top:1330px}
+.f6{left:2900px;top:1050px}
+
+/* =====================================================
+   PLAYER
+===================================================== */
+
+#hechie{
+  position:absolute;
+  width:76px;
+  height:76px;
+  transform:translate(-50%,-50%);
+  z-index:50;
+  font-size:66px;
+  text-align:center;
+  filter:drop-shadow(0 5px 4px #0004);
+}
+
+/* =====================================================
+   ENEMIES
+===================================================== */
+
+.enemy{
+  position:absolute;
+  width:80px;
+  height:95px;
+  transform:translate(-50%,-50%);
+  z-index:25;
+  text-align:center;
+  font-size:48px;
+  transition:filter .2s;
+}
+
+.enemy-icon{
+  display:block;
+}
+
+.enemy-name{
+  background:#ffffffdf;
+  border-radius:8px;
+  padding:3px 6px;
+  font-size:10px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.enemy-level{
+  font-size:9px;
+  background:#4d9d58;
+  color:white;
+  border-radius:7px;
+  display:inline-block;
+  padding:2px 5px;
+}
+
+.enemy.low{
+  filter:drop-shadow(0 0 5px #36c85f);
+}
+
+.enemy.medium{
+  filter:drop-shadow(0 0 5px #e4bd31);
+}
+
+.enemy.high{
+  filter:drop-shadow(0 0 5px #d63f3f);
+}
+
+.enemy.hiddenEnemy{
+  opacity:.01;
+}
+
+/* =====================================================
+   CAMERA / HUD
+===================================================== */
+
+#hud{
+  position:fixed;
+  top:14px;
+  left:14px;
+  right:14px;
+  z-index:200;
+  display:flex;
+  justify-content:space-between;
+  pointer-events:none;
+}
+
+.hudBox{
+  background:#ffffffdf;
+  padding:9px 14px;
+  border-radius:13px;
+  font-weight:bold;
+  box-shadow:0 4px 12px #0002;
+}
+
+.hudButtons{
+  display:flex;
+  gap:8px;
+  pointer-events:auto;
+}
+
+.hudButtons button{
+  background:#4b9ee8;
+  color:white;
+  padding:9px 13px;
+}
+
+/* =====================================================
+   JOYSTICK
+===================================================== */
+
+#joystick{
+  position:fixed;
+  left:24px;
+  bottom:24px;
+  width:145px;
+  height:145px;
+  z-index:250;
+  border-radius:50%;
+  background:#ffffff32;
+  border:3px solid #ffffff66;
+  touch-action:none;
+}
+
+#joystickKnob{
+  position:absolute;
+  left:40px;
+  top:40px;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:#ffffffc9;
+  border:3px solid white;
+  box-shadow:0 5px 15px #0003;
+}
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.overlay{
+  z-index:500;
+  background:#10283dcc;
+  align-items:center;
+  justify-content:center;
+}
+
+.overlay.active{
+  display:flex;
+}
+
+.panel{
+  width:min(650px,91vw);
+  max-height:88vh;
+  overflow:auto;
+  background:white;
+  border-radius:24px;
+  padding:27px;
+  text-align:center;
+  box-shadow:0 20px 60px #0007;
+}
+
+.panel h1{
+  margin-top:0;
+}
+
+.panel p{
+  line-height:1.55;
+  font-size:17px;
+}
+
+.primary{
+  background:#4b9ee8;
+  color:white;
+}
+
+/* =====================================================
+   BATTLE
+===================================================== */
+
+#battle{
+  z-index:450;
+  background:
+    linear-gradient(
+      to bottom,
+      #8ddbf0 0 43%,
+      #c1e47d 43% 100%
+    );
+}
+
+.battleCharacter{
+  position:absolute;
+  width:180px;
+  text-align:center;
+}
+
+.battleCharacter .icon{
+  font-size:82px;
+}
+
+#playerBattle{
+  left:10%;
+  top:52%;
+}
+
+#enemyBattle{
+  right:12%;
+  top:34%;
+}
+
+.battleName{
+  background:#ffffffdf;
+  padding:6px;
+  border-radius:9px;
+  font-weight:bold;
+}
+
+.bar{
+  height:13px;
+  margin-top:6px;
+  background:#d6dce0;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.barFill{
+  height:100%;
+  width:100%;
+  background:#55c65c;
+}
+
+.battleMessage{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:108px;
+  width:min(720px,92vw);
+  background:#ffffffdf;
+  padding:13px;
+  border-radius:14px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.battleControls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:14px;
+  background:#ffffffdd;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.battleControls button{
+  background:#f4f4f4;
+}
+
+.battleControls .primary{
+  background:#4b9ee8;
+}
+
+/* =====================================================
+   LEVEL UP
+===================================================== */
+
+.levelPopup{
+  position:fixed;
+  left:50%;
+  top:28%;
+  transform:translate(-50%,-50%);
+  z-index:600;
+  background:#fff;
+  padding:25px 35px;
+  border-radius:20px;
+  box-shadow:0 15px 50px #0006;
+  text-align:center;
+  display:none;
+}
+
+.levelPopup.active{
+  display:block;
+}
+
+.xpBar{
+  width:250px;
+  max-width:80vw;
+  height:14px;
+  background:#dce2e6;
+  border-radius:20px;
+  overflow:hidden;
+  margin:8px auto;
+}
+
+.xpFill{
+  height:100%;
+  background:#6e9ff2;
+  width:0%;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:700px){
+
+  .hudBox{
+    font-size:12px;
+    padding:8px 10px;
+  }
+
+  .hudButtons button{
+    font-size:12px;
+    padding:8px 10px;
+  }
+
+  .battleCharacter{
+    width:145px;
+  }
+
+  #joystick{
+    width:135px;
+    height:135px;
+  }
+
+  #joystickKnob{
+    width:59px;
+    height:59px;
+    left:35px;
+    top:35px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     WORLD
+===================================================== -->
+
+<div id="world" class="screen active">
+
+  <div id="camera">
+
+    <div class="sky"></div>
+    <div class="ground"></div>
+
+    <div class="area village"></div>
+
+    <div class="area plains"></div>
+
+    <div class="path path1"></div>
+    <div class="path path2"></div>
+    <div class="path path3"></div>
+    <div class="path path4"></div>
+    <div class="path path5"></div>
+    <div class="path path6"></div>
+
+    <!-- Village -->
+
+    <div class="villageSign">
+      🏘️ SOFTOY VILLAGE
+    </div>
+
+    <div class="house house1"></div>
+    <div class="house house2"></div>
+
+    <div class="emptyVillage">
+      The village is strangely quiet...
+    </div>
+
+    <!-- Area signs -->
+
+    <div class="landmark lostCaves">
+      <div class="caveEntrance">🕳️</div>
+      <div class="landmarkBox">
+        THE LOST CAVES<br>
+        <small>Dangerous — Return Later</small>
+      </div>
+    </div>
+
+    <div class="landmark doubleJump">
+      <div class="templeEntrance">🏛️</div>
+      <div class="landmarkBox">
+        ANCIENT TEMPLE<br>
+        <small>Double Jump Area — Later</small>
+      </div>
+    </div>
+
+    <div class="landmark bridge">
+      <div style="font-size:65px">🌉</div>
+      <div class="landmarkBox">
+        BED PLAINS BRIDGE
+      </div>
+    </div>
+
+    <!-- Decoration -->
+
+    <div class="tree t1"></div>
+    <div class="tree t2"></div>
+    <div class="tree t3"></div>
+    <div class="tree t4"></div>
+    <div class="tree t5"></div>
+    <div class="tree t6"></div>
+    <div class="tree t7"></div>
+    <div class="tree t8"></div>
+    <div class="tree t9"></div>
+
+    <div class="rock r1">🪨</div>
+    <div class="rock r2">🪨</div>
+    <div class="rock r3">🪨</div>
+    <div class="rock r4">🪨</div>
+    <div class="rock r5">🪨</div>
+
+    <div class="flower f1">🌼</div>
+    <div class="flower f2">🌼</div>
+    <div class="flower f3">🌼</div>
+    <div class="flower f4">🌼</div>
+    <div class="flower f5">🌼</div>
+    <div class="flower f6">🌼</div>
+
+    <!-- Dynamic enemies are inserted here -->
+
+    <div id="hechie">🦔</div>
+
+  </div>
+
+  <div id="hud">
+
+    <div class="hudBox">
+      🌱 <span id="areaName">Bed Plains</span>
+    </div>
+
+    <div class="hudButtons">
+
+      <button id="saveBtn">
+        💾 Save
+      </button>
+
+      <button id="squadBtn">
+        👥 Squad
+      </button>
+
+    </div>
+
+  </div>
+
+  <div id="joystick">
+    <div id="joystickKnob"></div>
+  </div>
+
+</div>
+
+<!-- =====================================================
+     BATTLE
+===================================================== -->
+
+<div id="battle" class="screen">
+
+  <div class="battleCharacter" id="playerBattle">
+
+    <div class="icon">🦔</div>
+
+    <div class="battleName">
+      Hechie
+    </div>
+
+    <div class="bar">
+      <div id="playerHPBar" class="barFill"></div>
+    </div>
+
+    <div style="font-size:12px">
+      HP <span id="playerHPText"></span>
+    </div>
+
+    <div class="xpBar">
+      <div id="battleXP" class="xpFill"></div>
+    </div>
+
+  </div>
+
+  <div class="battleCharacter" id="enemyBattle">
+
+    <div id="enemyBattleIcon" class="icon">🌱</div>
+
+    <div id="enemyBattleName" class="battleName">
+      Grassling
+    </div>
+
+    <div class="bar">
+      <div id="enemyHPBar" class="barFill"></div>
+    </div>
+
+    <div style="font-size:12px">
+      HP <span id="enemyHPText"></span>
+    </div>
+
+  </div>
+
+  <div id="battleMessage" class="battleMessage">
+    A wild enemy appeared!
+  </div>
+
+  <div class="battleControls">
+
+    <button id="attackBtn" class="primary">
+      ⚔️ Attack
+    </button>
+
+    <button id="abilityBtn">
+      ✨ Ability
+    </button>
+
+    <button id="runBtn">
+      🏃 Run
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     MESSAGE
+===================================================== -->
+
+<div id="messageScreen" class="screen overlay">
+
+  <div class="panel">
+
+    <h1 id="messageTitle"></h1>
+
+    <p id="messageText"></p>
+
+    <button id="messageButton" class="primary">
+      Continue
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     SQUAD
+===================================================== -->
+
+<div id="squadScreen" class="screen overlay">
+
+  <div class="panel">
+
+    <h1>👥 Manage Squad</h1>
+
+    <p>
+      <strong>Frontline</strong><br>
+      🦔 Hechie — Level <span id="squadLevel">1</span>
+    </p>
+
+    <p>
+      <strong>Middleline</strong><br>
+      Empty
+    </p>
+
+    <p>
+      <strong>Backline</strong><br>
+      Empty
+    </p>
+
+    <hr>
+
+    <p>
+      XP: <span id="squadXP"></span>
+    </p>
+
+    <div class="xpBar">
+      <div id="squadXPBar" class="xpFill"></div>
+    </div>
+
+    <button id="closeSquad" class="primary">
+      Return
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     LEVEL POPUP
+===================================================== -->
+
+<div id="levelPopup" class="levelPopup">
+
+  <h2>⭐ LEVEL UP!</h2>
+
+  <div>
+    Hechie is now Level
+    <strong id="newLevel"></strong>
+  </div>
+
+  <p id="statIncreaseText"></p>
+
+  <button id="closeLevelPopup" class="primary">
+    Continue
+  </button>
+
+</div>
+
+<script>
+/* =====================================================
+   GAME DATA
+===================================================== */
+
+const XP_TABLE = {
+
+  1:0,
+  2:100,
+  3:150,
+  4:300,
+  5:450,
+  6:600,
+  7:750,
+  8:925,
+  9:1150,
+  10:1400,
+  11:1750,
+  12:1975,
+  13:2250,
+  14:2575,
+  15:2900,
+  16:3300,
+  17:3700,
+  18:4150,
+  19:4600,
+  20:5200,
+  21:5800,
+  22:6400,
+  23:7200,
+  24:8000,
+  25:8800,
+  26:9600,
+  27:10400,
+  28:11200,
+  29:12000,
+  30:13000
+
+};
+
+/*
+  For the later levels:
+  31–40 = +1000 XP per level
+  41–50 = +1500
+  51–60 = +2000
+  61–70 = +3000
+  71–80 = +4500
+  81–90 = +7500
+  91–98 = +10000
+  99 = +15000
+*/
+
+function buildXPTable(){
+
+  let xp=XP_TABLE[30];
+
+  for(let level=31;level<=99;level++){
+
+    if(level<=40) xp+=1000;
+    else if(level<=50) xp+=1500;
+    else if(level<=60) xp+=2000;
+    else if(level<=70) xp+=3000;
+    else if(level<=80) xp+=4500;
+    else if(level<=90) xp+=7500;
+    else if(level<=98) xp+=10000;
+    else xp+=15000;
+
+    XP_TABLE[level]=xp;
+
+  }
+
+}
+
+buildXPTable();
+
+/* =====================================================
+   HECHIE
+===================================================== */
+
+const game={
+
+  player:{
+
+    x:480,
+    y:850,
+
+    speed:2.15,
+
+    level:1,
+    xp:0,
+
+    hp:105,
+    maxHp:105,
+
+    attack:13,
+    defence:7,
+    speedStat:11,
+    energy:105,
+    maxEnergy:105
+
+  },
+
+  camera:{
+    x:0,
+    y:0
+  },
+
+  defeatedEnemies:0,
+
+  battle:null,
+
+  firstBattle:false
+
+};
+
+/* =====================================================
+   ENEMY DEFINITIONS
+===================================================== */
+
+const ENEMY_TYPES={
+
+  Grassling:{
+
+    name:"Grassling",
+    icon:"🌱",
+    rarity:"Common",
+    levelMin:1,
+    levelMax:5,
+
+    baseHP:12,
+    hpIncrease:4,
+
+    baseAttack:2,
+    attackIncrease:1,
+
+    defence:0,
+    speed:10,
+    energy:0,
+
+    ai:"attack",
+
+    lootMin:5,
+    lootMax:15,
+
+    groupWeight:5,
+
+    targetOrder:["front","middle","back"]
+
+  },
+
+  Pidgeoning:{
+
+    name:"Pidgeoning",
+    icon:"🐦",
+    rarity:"Uncommon",
+    levelMin:1,
+    levelMax:8,
+
+    baseHP:16,
+    hpIncrease:3,
+
+    baseAttack:3,
+    attackIncrease:1,
+
+    defence:1,
+    speed:25,
+    energy:0,
+
+    ai:"attack",
+
+    lootMin:10,
+    lootMax:25,
+
+    groupWeight:4,
+
+    targetOrder:["back","middle","front"]
+
+  },
+
+  Rats:{
+
+    name:"Rats",
+    icon:"🐀",
+    rarity:"Common",
+    levelMin:1,
+    levelMax:10,
+
+    baseHP:10,
+    hpIncrease:3,
+
+    baseAttack:2,
+    attackIncrease:1,
+
+    defence:0,
+    speed:18,
+    energy:0,
+
+    ai:"attack",
+
+    lootMin:4,
+    lootMax:14,
+
+    groupWeight:5,
+
+    targetOrder:["front","middle","back"]
+
+  },
+
+  EddieMinion:{
+
+    name:"Eddie Minion",
+    icon:"🦊",
+    rarity:"Rare",
+    levelMin:2,
+    levelMax:8,
+
+    baseHP:25,
+    hpIncrease:3,
+
+    baseAttack:10,
+    attackIncrease:1,
+
+    defence:10,
+    speed:40,
+    energy:200,
+
+    ai:"attack",
+
+    lootMin:20,
+    lootMax:45,
+
+    groupWeight:2,
+
+    targetOrder:["front","middle","back"]
+
+  },
+
+  ArmoredEddieMinion:{
+
+    name:"Armored Eddie Minion",
+    icon:"🦊",
+    rarity:"Common",
+    levelMin:2,
+    levelMax:13,
+
+    baseHP:40,
+    hpIncrease:4,
+
+    baseAttack:7,
+    attackIncrease:1,
+
+    defence:20,
+    speed:15,
+    energy:200,
+
+    ai:"defense",
+
+    lootMin:25,
+    lootMax:55,
+
+    groupWeight:1,
+
+    targetOrder:["front","middle","back"]
+
+  },
+
+  MimicChest:{
+
+    name:"Mimic Chest",
+    icon:"🧰",
+    rarity:"Super Rare",
+    levelMin:10,
+    levelMax:15,
+
+    baseHP:70,
+    hpIncrease:5,
+
+    baseAttack:12,
+    attackIncrease:2,
+
+    defence:12,
+    speed:8,
+    energy:100,
+
+    ai:"smart",
+
+    lootMin:60,
+    lootMax:130,
+
+    groupWeight:1,
+
+    targetOrder:["front","middle","back"],
+
+    special:true
+
+  }
+
+};
+
+/* =====================================================
+   DOM
+===================================================== */
+
+const camera=
+  document.getElementById("camera");
+
+const hechie=
+  document.getElementById("hechie");
+
+const world=
+  document.getElementById("world");
+
+const joystick=
+  document.getElementById("joystick");
+
+const knob=
+  document.getElementById("joystickKnob");
+
+const enemyLayer=
+  document.getElementById("camera");
+
+/* =====================================================
+   ENEMY INSTANCES
+===================================================== */
+
+let enemies=[];
+
+/* =====================================================
+   RANDOM HELPERS
+===================================================== */
+
+function random(min,max){
+
+  return Math.floor(
+    Math.random()*(max-min+1)
+  )+min;
+
+}
+
+function randomFloat(min,max){
+
+  return Math.random()*(max-min)+min;
+
+}
+
+function distance(a,b,c,d){
+
+  return Math.hypot(
+    a-c,
+    b-d
+  );
+
+}
+
+/* =====================================================
+   ENEMY LEVEL SCALING
+===================================================== */
+
+/*
+  IMPORTANT:
+  Every "+X per level upgrade" begins at Level 1,
+  even if the enemy normally spawns at a higher level.
+*/
+
+function enemyStats(type,level){
+
+  const data=ENEMY_TYPES[type];
+
+  return {
+
+    hp:
+      data.baseHP+
+      ((level-1)*data.hpIncrease),
+
+    attack:
+      data.baseAttack+
+      ((level-1)*data.attackIncrease),
+
+    defence:data.defence,
+
+    speed:data.speed,
+
+    energy:data.energy
+
+  };
+
+}
+
+/* =====================================================
+   SAFE SPAWN SYSTEM
+===================================================== */
+
+const SPAWN_BUFFER=230;
+const MIN_PLAYER_DISTANCE=430;
+
+function isOnScreen(x,y){
+
+  const width=window.innerWidth;
+  const height=window.innerHeight;
+
+  const sx=x+game.camera.x;
+  const sy=y+game.camera.y;
+
+  return(
+    sx>-80 &&
+    sx<width+80 &&
+    sy>-80 &&
+    sy<height+80
+  );
+
+}
+
+function insidePlains(x,y){
+
+  return(
+    x>=650 &&
+    x<=2990 &&
+    y>=540 &&
+    y<=1910
+  );
+
+}
+
+function validSpawnPosition(x,y){
+
+  if(!insidePlains(x,y))
+    return false;
+
+  if(isOnScreen(x,y))
+    return false;
+
+  if(
+    distance(
+      x,y,
+      game.player.x,
+      game.player.y
+    )<MIN_PLAYER_DISTANCE
+  )
+    return false;
+
+  /*
+    Avoid spawning directly on major landmarks.
+  */
+
+  const landmarks=[
+
+    [1510,930,190],  // bridge
+    [970,1580,190],  // Lost Caves
+    [2570,1500,190]  // temple
+
+  ];
+
+  for(const l of landmarks){
+
+    if(
+      distance(x,y,l[0],l[1])<l[2]
+    )
+      return false;
+
+  }
+
+  return true;
+
+}
+
+/* =====================================================
+   FIND SPAWN POSITION
+===================================================== */
+
+function findSpawnPosition(){
+
+  for(let attempt=0;attempt<100;attempt++){
+
+    const angle=
+      Math.random()*Math.PI*2;
+
+    const dist=
+      random(
+        MIN_PLAYER_DISTANCE+SPAWN_BUFFER,
+        MIN_PLAYER_DISTANCE+SPAWN_BUFFER+650
+      );
+
+    let x=
+      game.player.x+
+      Math.cos(angle)*dist;
+
+    let y=
+      game.player.y+
+      Math.sin(angle)*dist;
+
+    if(validSpawnPosition(x,y))
+      return{x,y};
+
+  }
+
+  /*
+    Fallback far away from player.
+  */
+
+  return{
+    x:2700,
+    y:1800
+  };
+
+}
+
+/* =====================================================
+   ENEMY LEVEL RANGE
+===================================================== */
+
+function randomEnemyLevel(type){
+
+  const data=
+    ENEMY_TYPES[type];
+
+  /*
+    Normal Bed Plains enemies only use
+    their own specified level ranges.
+  */
+
+  return random(
+    data.levelMin,
+    data.levelMax
+  );
+
+}
+
+/* =====================================================
+   CREATE ENEMY
+===================================================== */
+
+function createEnemy(type){
+
+  const data=
+    ENEMY_TYPES[type];
+
+  const level=
+    randomEnemyLevel(type);
+
+  const stats=
+    enemyStats(type,level);
+
+  const position=
+    findSpawnPosition();
+
+  const element=
+    document.createElement("div");
+
+  element.className="enemy";
+
+  element.innerHTML=`
+    <span class="enemy-icon">
+      ${data.icon}
+    </span>
+
+    <span class="enemy-level">
+      Lv. ?
+    </span>
+
+    <span class="enemy-name">
+      ${data.name}
+    </span>
+  `;
+
+  element.style.left=
+    position.x+"px";
+
+  element.style.top=
+    position.y+"px";
+
+  camera.appendChild(element);
+
+  const enemy={
+
+    id:Date.now()+Math.random(),
+
+    type,
+    level,
+
+    x:position.x,
+    y:position.y,
+
+    hp:stats.hp,
+    maxHp:stats.hp,
+
+    attack:stats.attack,
+    defence:stats.defence,
+    speed:stats.speed,
+    energy:stats.energy,
+
+    element,
+
+    active:true,
+
+    wanderAngle:
+      Math.random()*Math.PI*2,
+
+    wanderTimer:random(60,180)
+
+  };
+
+  enemies.push(enemy);
+
+  updateEnemyDifficultyOutline(enemy);
+
+  return enemy;
+
+}
+
+/* =====================================================
+   ENEMY OUTLINE
+===================================================== */
+
+function updateEnemyDifficultyOutline(enemy){
+
+  const difference=
+    enemy.level-game.player.level;
+
+  enemy.element.classList.remove(
+    "low",
+    "medium",
+    "high"
+  );
+
+  if(difference<=-2){
+
+    enemy.element.classList.add("low");
+
+  }else if(difference<=1){
+
+    enemy.element.classList.add("medium");
+
+  }else{
+
+    enemy.element.classList.add("high");
+
+  }
+
+}
+
+/* =====================================================
+   INITIAL BED PLAINS ENCOUNTERS
+===================================================== */
+
+function spawnInitialEnemies(){
+
+  /*
+    The first enemies are deliberately Level 1–5
+    Grasslings/Rats/Pidgeonings so the player
+    cannot immediately encounter a powerful enemy.
+  */
+
+  const starterPositions=[
+
+    ["Grassling",760,650],
+    ["Rats",850,1040],
+    ["Pidgeoning",1250,610],
+    ["Grassling",1400,1500],
+    ["Rats",1780,800],
+    ["Pidgeoning",2050,620],
+    ["Grassling",2220,1260],
+    ["Rats",2450,920],
+    ["Grassling",2760,700]
+
+  ];
+
+  for(
+    const [type,x,y]
+    of starterPositions
+  ){
+
+    if(!validSpawnPosition(x,y))
+      continue;
+
+    const oldFind=findSpawnPosition;
+
+    /*
+      Temporary exact-position creation.
+    */
+
+    const data=ENEMY_TYPES[type];
+    const level=randomEnemyLevel(type);
+    const stats=enemyStats(type,level);
+
+    const element=
+      document.createElement("div");
+
+    element.className="enemy";
+
+    element.innerHTML=`
+      <span class="enemy-icon">${data.icon}</span>
+      <span class="enemy-level">Lv. ?</span>
+      <span class="enemy-name">${data.name}</span>
+    `;
+
+    element.style.left=x+"px";
+    element.style.top=y+"px";
+
+    camera.appendChild(element);
+
+    const enemy={
+
+      id:Date.now()+Math.random(),
+      type,
+      level,
+      x,
+      y,
+
+      hp:stats.hp,
+      maxHp:stats.hp,
+
+      attack:stats.attack,
+      defence:stats.defence,
+      speed:stats.speed,
+      energy:stats.energy,
+
+      element,
+      active:true,
+
+      wanderAngle:
+        Math.random()*Math.PI*2,
+
+      wanderTimer:
+        random(60,180)
+
+    };
+
+    enemies.push(enemy);
+
+    updateEnemyDifficultyOutline(enemy);
+
+  }
+
+}
+
+/* =====================================================
+   DYNAMIC SPAWNING
+===================================================== */
+
+let spawnTimer=0;
+
+function chooseSpawnType(){
+
+  /*
+    Weighted toward weaker enemies.
+
+    Strong enemies are deliberately uncommon
+    in this early area.
+  */
+
+  const roll=Math.random();
+
+  if(roll<0.38)
+    return"Grassling";
+
+  if(roll<0.66)
+    return"Rats";
+
+  if(roll<0.86)
+    return"Pidgeoning";
+
+  if(roll<0.94)
+    return"EddieMinion";
+
+  if(roll<0.98)
+    return"ArmoredEddieMinion";
+
+  return"MimicChest";
+
+}
+
+function dynamicSpawn(){
+
+  if(enemies.length>=16)
+    return;
+
+  const type=
+    chooseSpawnType();
+
+  createEnemy(type);
+
+}
+
+/* =====================================================
+   ENEMY MOVEMENT
+===================================================== */
+
+function updateEnemies(){
+
+  for(const enemy of enemies){
+
+    if(!enemy.active)
+      continue;
+
+    /*
+      Enemies cannot cross out of Bed Plains.
+    */
+
+    const dx=
+      game.player.x-enemy.x;
+
+    const dy=
+      game.player.y-enemy.y;
+
+    const dist=
+      Math.hypot(dx,dy);
+
+    /*
+      Enemies remain outside the screen until
+      naturally approaching the player.
+    */
+
+    if(
+      dist<360 &&
+      !isOnScreen(enemy.x,enemy.y)
+    ){
+
+      const angle=
+        Math.atan2(dy,dx);
+
+      enemy.x+=
+        Math.cos(angle)*
+        Math.min(
+          0.7,
+          enemy.speed/50
+        );
+
+      enemy.y+=
+        Math.sin(angle)*
+        Math.min(
+          0.7,
+          enemy.speed/50
+        );
+
+    }else{
+
+      enemy.wanderTimer--;
+
+      if(enemy.wanderTimer<=0){
+
+        enemy.wanderTimer=
+          random(60,180);
+
+        enemy.wanderAngle=
+          Math.random()*
+          Math.PI*2;
+
+      }
+
+      enemy.x+=
+        Math.cos(enemy.wanderAngle)*
+        0.25;
+
+      enemy.y+=
+        Math.sin(enemy.wanderAngle)*
+        0.25;
+
+    }
+
+    /*
+      Keep enemies inside their major area.
+    */
+
+    enemy.x=
+      Math.max(
+        670,
+        Math.min(
+          2970,
+          enemy.x
+        )
+      );
+
+    enemy.y=
+      Math.max(
+        560,
+        Math.min(
+          1880,
+          enemy.y
+        )
+      );
+
+    enemy.element.style.left=
+      enemy.x+"px";
+
+    enemy.element.style.top=
+      enemy.y+"px";
+
+    /*
+      Touching an enemy starts battle.
+    */
+
+    if(
+      distance(
+        game.player.x,
+        game.player.y,
+        enemy.x,
+        enemy.y
+      )<58
+    ){
+
+      startBattle(enemy);
+
+      return;
+
+    }
+
+  }
+
+}
+
+/* =====================================================
+   DESPAWN SYSTEM
+===================================================== */
+
+function cleanupEnemies(){
+
+  for(let i=enemies.length-1;i>=0;i--){
+
+    const enemy=enemies[i];
+
+    if(!enemy.active){
+
+      enemy.element.remove();
+      enemies.splice(i,1);
+      continue;
+
+    }
+
+    /*
+      If the enemy is outside the player's
+      visible screen, it can be removed when
+      the game needs to reduce processing.
+    */
+
+    if(
+      game.player.x<850 ||
+      game.player.x>2800
+    ){
+
+      if(
+        !isOnScreen(enemy.x,enemy.y) &&
+        distance(
+          enemy.x,
+          enemy.y,
+          game.player.x,
+          game.player.y
+        )>950
+      ){
+
+        enemy.element.remove();
+        enemies.splice(i,1);
+
+      }
+
+    }
+
+  }
+
+}
+
+/* =====================================================
+   PLAYER MOVEMENT
+===================================================== */
+
+let joyActive=false;
+let joyX=0;
+let joyY=0;
+
+function movePlayer(){
+
+  if(!joyActive)
+    return;
+
+  const length=
+    Math.hypot(joyX,joyY);
+
+  if(length<0.1)
+    return;
+
+  const nx=joyX/length;
+  const ny=joyY/length;
+
+  /*
+    Slow walking speed.
+  */
+
+  const speed=
+    game.player.speed;
+
+  game.player.x+=
+    nx*speed;
+
+  game.player.y+=
+    ny*speed;
+
+  /*
+    Keep Hechie within the connected
+    world area.
+  */
+
+  game.player.x=
+    Math.max(
+      120,
+      Math.min(
+        2980,
+        game.player.x
+      )
+    );
+
+  game.player.y=
+    Math.max(
+      580,
+      Math.min(
+        1870,
+        game.player.y
+      )
+    );
+
+  updatePlayer();
+
+}
+
+/* =====================================================
+   CAMERA FOLLOW
+===================================================== */
+
+function updateCamera(){
+
+  const width=window.innerWidth;
+  const height=window.innerHeight;
+
+  let targetX=
+    width/2-
+    game.player.x;
+
+  let targetY=
+    height/2-
+    game.player.y;
+
+  const minX=
+    width-3200;
+
+  const minY=
+    height-2200;
+
+  targetX=
+    Math.max(
+      minX,
+      Math.min(
+        0,
+        targetX
+      )
+    );
+
+  targetY=
+    Math.max(
+      minY,
+      Math.min(
+        0,
+        targetY
+      )
+    );
+
+  /*
+    Smooth camera movement.
+  */
+
+  game.camera.x+=
+    (targetX-game.camera.x)*0.10;
+
+  game.camera.y+=
+    (targetY-game.camera.y)*0.10;
+
+  camera.style.transform=
+    `translate(
+      ${game.camera.x}px,
+      ${game.camera.y}px
+    )`;
+
+}
+
+function updatePlayer(){
+
+  hechie.style.left=
+    game.player.x+"px";
+
+  hechie.style.top=
+    game.player.y+"px";
+
+  updateCamera();
+
+  for(const enemy of enemies)
+    updateEnemyDifficultyOutline(enemy);
+
+}
+
+/* =====================================================
+   JOYSTICK
+===================================================== */
+
+function joystickPoint(e){
+
+  const rect=
+    joystick.getBoundingClientRect();
+
+  const point=
+    e.touches
+      ? e.touches[0]
+      : e;
+
+  let dx=
+    point.clientX-
+    (rect.left+rect.width/2);
+
+  let dy=
+    point.clientY-
+    (rect.top+rect.height/2);
+
+  const max=
+    rect.width/2-31;
+
+  const length=
+    Math.hypot(dx,dy);
+
+  if(length>max){
+
+    dx=
+      dx/length*max;
+
+    dy=
+      dy/length*max;
+
+  }
+
+  knob.style.transform=
+    `translate(${dx}px,${dy}px)`;
+
+  joyX=dx/max;
+  joyY=dy/max;
+
+}
+
+joystick.addEventListener(
+  "touchstart",
+  e=>{
+    e.preventDefault();
+    joyActive=true;
+    joystickPoint(e);
+  },
+  {passive:false}
+);
+
+joystick.addEventListener(
+  "touchmove",
+  e=>{
+    e.preventDefault();
+    joystickPoint(e);
+  },
+  {passive:false}
+);
+
+joystick.addEventListener(
+  "touchend",
+  e=>{
+    joyActive=false;
+    joyX=0;
+    joyY=0;
+    knob.style.transform="translate(0,0)";
+  }
+);
+
+joystick.addEventListener(
+  "mousedown",
+  e=>{
+    joyActive=true;
+    joystickPoint(e);
+  }
+);
+
+window.addEventListener(
+  "mousemove",
+  e=>{
+    if(joyActive)
+      joystickPoint(e);
+  }
+);
+
+window.addEventListener(
+  "mouseup",
+  ()=>{
+    joyActive=false;
+    joyX=0;
+    joyY=0;
+    knob.style.transform="translate(0,0)";
+  }
+);
+
+/* =====================================================
+   XP SYSTEM
+===================================================== */
+
+function getNextLevelXP(level){
+
+  if(level>=99)
+    return Infinity;
+
+  return XP_TABLE[level+1];
+
+}
+
+function getCurrentLevelBaseXP(level){
+
+  return XP_TABLE[level]||0;
+
+}
+
+function addXP(amount){
+
+  const player=
+    game.player;
+
+  if(player.level>=99)
+    return;
+
+  const oldLevel=
+    player.level;
+
+  player.xp+=amount;
+
+  while(
+    player.level<99 &&
+    player.xp>=
+      getNextLevelXP(player.level)
+  ){
+
+    player.level++;
+
+    levelUpStats();
+
+  }
+
+  updateSquadUI();
+
+  if(player.level>oldLevel){
+
+    showLevelPopup(
+      oldLevel,
+      player.level
+    );
+
+  }
+
+}
+
+function levelUpStats(){
+
+  const p=
+    game.player;
+
+  /*
+    Gradually increasing stat growth.
+    The increase is intentionally modest.
+  */
+
+  let hpIncrease;
+  let attackIncrease;
+  let defenceIncrease;
+  let speedIncrease;
+  let energyIncrease;
+
+  if(p.level<=10){
+
+    hpIncrease=4;
+    attackIncrease=1;
+    defenceIncrease=1;
+    speedIncrease=0.2;
+    energyIncrease=4;
+
+  }else if(p.level<=30){
+
+    hpIncrease=5;
+    attackIncrease=1;
+    defenceIncrease=1;
+    speedIncrease=0.25;
+    energyIncrease=5;
+
+  }else if(p.level<=60){
+
+    hpIncrease=7;
+    attackIncrease=2;
+    defenceIncrease=1;
+    speedIncrease=0.35;
+    energyIncrease=7;
+
+  }else{
+
+    hpIncrease=9;
+    attackIncrease=2;
+    defenceIncrease=2;
+    speedIncrease=0.45;
+    energyIncrease=9;
+
+  }
+
+  p.maxHp+=hpIncrease;
+  p.hp=p.maxHp;
+
+  p.attack+=attackIncrease;
+  p.defence+=defenceIncrease;
+
+  p.speedStat+=speedIncrease;
+
+  p.maxEnergy+=energyIncrease;
+  p.energy=p.maxEnergy;
+
+  game.player.speed=
+    Math.min(
+      3.3,
+      2.15+
+      (p.level-1)*0.008
+    );
+
+}
+
+function showLevelPopup(oldLevel,newLevel){
+
+  document.getElementById(
+    "newLevel"
+  ).textContent=
+    newLevel;
+
+  document.getElementById(
+    "statIncreaseText"
+  ).textContent=
+    "Hechie became stronger! His stats have increased.";
+
+  document
+    .getElementById("levelPopup")
+    .classList.add("active");
+
+}
+
+document
+  .getElementById("closeLevelPopup")
+  .addEventListener(
+    "click",
+    ()=>{
+      document
+        .getElementById("levelPopup")
+        .classList.remove("active");
+    }
+  );
+
+/* =====================================================
+   BATTLE SYSTEM
+===================================================== */
+
+function startBattle(enemy){
+
+  if(game.battle)
+    return;
+
+  enemy.active=false;
+
+  game.battle={
+
+    enemy,
+
+    enemyHP:enemy.hp,
+    enemyMaxHP:enemy.maxHp,
+
+    playerHP:game.player.hp,
+    playerMaxHP:game.player.maxHp,
+
+    playerTurn:true,
+
+    battleEnded:false
+
+  };
+
+  updateBattleScreen();
+
+  showScreen("battle");
+
+  document.getElementById(
+    "battleMessage"
+  ).textContent=
+    `A ${enemy.type} approaches! Touching an enemy begins battle.`;
+
+}
+
+function updateBattleScreen(){
+
+  const b=
+    game.battle;
+
+  if(!b)
+    return;
+
+  document.getElementById(
+    "enemyBattleIcon"
+  ).textContent=
+    ENEMY_TYPES[
+      b.enemy.type
+    ].icon;
+
+  document.getElementById(
+    "enemyBattleName"
+  ).textContent=
+    `${b.enemy.type} — Lv. ${b.enemy.level}`;
+
+  document.getElementById(
+    "enemyHPBar"
+  ).style.width=
+    Math.max(
+      0,
+      b.enemyHP/b.enemyMaxHP*100
+    )+"%";
+
+  document.getElementById(
+    "playerHPBar"
+  ).style.width=
+    Math.max(
+      0,
+      b.playerHP/b.playerMaxHP*100
+    )+"%";
+
+  document.getElementById(
+    "enemyHPText"
+  ).textContent=
+    `${Math.max(0,Math.round(b.enemyHP))}/${b.enemyMaxHP}`;
+
+  document.getElementById(
+    "playerHPText"
+  ).textContent=
+    `${Math.max(0,Math.round(b.playerHP))}/${b.playerMaxHP}`;
+
+  const current=
+    getCurrentLevelBaseXP(
+      game.player.level
+    );
+
+  const next=
+    getNextLevelXP(
+      game.player.level
+    );
+
+  let xpPercent=100;
+
+  if(next!==Infinity){
+
+    xpPercent=
+      (
+        (game.player.xp-current)/
+        (next-current)
+      )*100;
+
+  }
+
+  document.getElementById(
+    "battleXP"
+  ).style.width=
+    Math.max(
+      0,
+      Math.min(
+        100,
+        xpPercent
+      )
+    )+"%";
+
+}
+
+/* =====================================================
+   DAMAGE TYPES
+===================================================== */
+
+function normalDamage(
+  attack,
+  defence
+){
+
+  return Math.max(
+    1,
+    Math.round(
+      attack-defence
+    )
+  );
+
+}
+
+/* =====================================================
+   PLAYER ATTACK
+===================================================== */
+
+document
+  .getElementById("attackBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      if(!game.battle ||
+         game.battle.battleEnded)
+        return;
+
+      const b=
+        game.battle;
+
+      const damage=
+        normalDamage(
+          game.player.attack,
+          b.enemy.defence
+        );
+
+      b.enemyHP=
+        Math.max(
+          0,
+          b.enemyHP-damage
+        );
+
+      document.getElementById(
+        "battleMessage"
+      ).textContent=
+        `Hechie dealt ${damage} damage!`;
+
+      updateBattleScreen();
+
+      if(b.enemyHP<=0){
+
+        winBattle();
+
+        return;
+
+      }
+
+      setTimeout(
+        enemyTurn,
+        450
+      );
+
+    }
+  );
+
+/* =====================================================
+   ABILITY
+===================================================== */
+
+document
+  .getElementById("abilityBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      if(!game.battle ||
+         game.battle.battleEnded)
+        return;
+
+      const p=
+        game.player;
+
+      if(p.energy<25){
+
+        document.getElementById(
+          "battleMessage"
+        ).textContent=
+          "Not enough Energy!";
+
+        return;
+
+      }
+
+      p.energy-=25;
+
+      const b=
+        game.battle;
+
+      const damage=
+        Math.max(
+          1,
+          Math.round(
+            p.attack*1.5-
+            b.enemy.defence
+          )
+        );
+
+      b.enemyHP=
+        Math.max(
+          0,
+          b.enemyHP-damage
+        );
+
+      document.getElementById(
+        "battleMessage"
+      ).textContent=
+        `Hechie used an ability for ${damage} damage!`;
+
+      updateBattleScreen();
+
+      if(b.enemyHP<=0){
+
+        winBattle();
+
+        return;
+
+      }
+
+      setTimeout(
+        enemyTurn,
+        450
+      );
+
+    }
+  );
+
+/* =====================================================
+   ENEMY TURN
+===================================================== */
+
+function enemyTurn(){
+
+  if(!game.battle ||
+     game.battle.battleEnded)
+    return;
+
+  const b=
+    game.battle;
+
+  const damage=
+    normalDamage(
+      b.enemy.attack,
+      game.player.defence
+    );
+
+  b.playerHP=
+    Math.max(
+      0,
+      b.playerHP-damage
+    );
+
+  document.getElementById(
+    "battleMessage"
+  ).textContent=
+    `${b.enemy.type} attacked for ${damage} damage!`;
+
+  updateBattleScreen();
+
+  if(b.playerHP<=0){
+
+    loseBattle();
+
+  }
+
+}
+
+/* =====================================================
+   RUN
+===================================================== */
+
+document
+  .getElementById("runBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      if(!game.battle)
+        return;
+
+      const enemy=
+        game.battle.enemy;
+
+      /*
+        Tutorial/simple implementation:
+        use average roster speed versus
+        enemy speed as the escape check.
+      */
+
+      const rosterSpeed=
+        game.player.speedStat;
+
+      if(
+        rosterSpeed<
+        enemy.speed
+      ){
+
+        document.getElementById(
+          "battleMessage"
+        ).textContent=
+          "You cannot escape! The enemy is faster.";
+
+        setTimeout(
+          enemyTurn,
+          450
+        );
+
+        return;
+
+      }
+
+      const chance=
+        Math.min(
+          90,
+          Math.max(
+            10,
+            Math.round(
+              50+
+              (
+                rosterSpeed-
+                enemy.speed
+              )*2
+            )
+          )
+        );
+
+      if(
+        Math.random()*100<
+        chance
+      ){
+
+        document.getElementById(
+          "battleMessage"
+        ).textContent=
+          "You escaped!";
+
+        setTimeout(
+          endBattleWithoutReward,
+          600
+        );
+
+      }else{
+
+        document.getElementById(
+          "battleMessage"
+        ).textContent=
+          "You failed to escape!";
+
+        setTimeout(
+          enemyTurn,
+          450
+        );
+
+      }
+
+    }
+  );
+
+/* =====================================================
+   BATTLE WIN
+===================================================== */
+
+function winBattle(){
+
+  const b=
+    game.battle;
+
+  b.battleEnded=true;
+
+  const enemy=
+    b.enemy;
+
+  /*
+    Enemy EXP:
+    Level 1 = 10 EXP.
+    Each level = +5 EXP.
+  */
+
+  const enemyXP=
+    enemy.level*5+
+    5;
+
+  /*
+    End-battle EXP:
+    Level 1 battle = 1 EXP.
+    Each battle level increases by 3.
+  */
+
+  const battleXP=
+    Math.max(
+      1,
+      (enemy.level-1)*3+1
+    );
+
+  const totalXP=
+    enemyXP+
+    battleXP;
+
+  game.player.hp=
+    b.playerHP;
+
+  game.player.energy=
+    Math.min(
+      game.player.maxEnergy,
+      game.player.energy
+    );
+
+  game.defeatedEnemies++;
+
+  addXP(totalXP);
+
+  document.getElementById(
+    "battleMessage"
+  ).textContent=
+    `Victory! +${totalXP} EXP`;
+
+  setTimeout(
+    ()=>{
+      endBattle();
+    },
+    900
+  );
+
+}
+
+/* =====================================================
+   BATTLE LOSS
+===================================================== */
+
+function loseBattle(){
+
+  game.battle.battleEnded=true;
+
+  document.getElementById(
+    "battleMessage"
+  ).textContent=
+    "Hechie was knocked out!";
+
+  setTimeout(
+    ()=>{
+
+      game.player.hp=
+        game.player.maxHp;
+
+      game.player.energy=
+        game.player.maxEnergy;
+
+      /*
+        Return to the beginning of Bed Plains
+        for this prototype.
+      */
+
+      game.player.x=700;
+      game.player.y=850;
+
+      endBattle();
+
+    },
+    1000
+  );
+
+}
+
+/* =====================================================
+   END BATTLE
+===================================================== */
+
+function endBattle(){
+
+  if(game.battle){
+
+    game.battle.enemy.element.remove();
+
+    enemies=
+      enemies.filter(
+        e=>e!==game.battle.enemy
+      );
+
+  }
+
+  game.battle=null;
+
+  showScreen("world");
+
+  updatePlayer();
+
+}
+
+function endBattleWithoutReward(){
+
+  if(game.battle){
+
+    const enemy=
+      game.battle.enemy;
+
+    enemy.active=true;
+
+    enemy.element.style.left=
+      (game.player.x+180)+"px";
+
+    enemy.element.style.top=
+      (game.player.y+180)+"px";
+
+  }
+
+  game.battle=null;
+
+  showScreen("world");
+
+}
+
+/* =====================================================
+   SCREEN SWITCHING
+===================================================== */
+
+function showScreen(name){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(s=>
+      s.classList.remove("active")
+    );
+
+  if(name==="battle")
+    document
+      .getElementById("battle")
+      .classList.add("active");
+
+  else if(name==="world")
+    document
+      .getElementById("world")
+      .classList.add("active");
+
+}
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(
+  title,
+  text,
+  callback
+){
+
+  document.getElementById(
+    "messageTitle"
+  ).textContent=title;
+
+  document.getElementById(
+    "messageText"
+  ).textContent=text;
+
+  document
+    .getElementById("messageScreen")
+    .classList.add("active");
+
+  document.getElementById(
+    "messageButton"
+  ).onclick=()=>{
+
+    document
+      .getElementById("messageScreen")
+      .classList.remove("active");
+
+    if(callback)
+      callback();
+
+  };
+
+}
+
+/* =====================================================
+   SQUAD UI
+===================================================== */
+
+function updateSquadUI(){
+
+  const p=
+    game.player;
+
+  document.getElementById(
+    "squadLevel"
+  ).textContent=
+    p.level;
+
+  document.getElementById(
+    "squadXP"
+  ).textContent=
+    p.xp;
+
+  const current=
+    getCurrentLevelBaseXP(
+      p.level
+    );
+
+  const next=
+    getNextLevelXP(
+      p.level
+    );
+
+  let percent=100;
+
+  if(next!==Infinity){
+
+    percent=
+      (
+        (p.xp-current)/
+        (next-current)
+      )*100;
+
+  }
+
+  document.getElementById(
+    "squadXPBar"
+  ).style.width=
+    Math.max(
+      0,
+      Math.min(
+        100,
+        percent
+      )
+    )+"%";
+
+}
+
+document
+  .getElementById("squadBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      updateSquadUI();
+
+      document
+        .getElementById("squadScreen")
+        .classList.add("active");
+
+    }
+  );
+
+document
+  .getElementById("closeSquad")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      document
+        .getElementById("squadScreen")
+        .classList.remove("active");
+
+    }
+  );
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+document
+  .getElementById("saveBtn")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      localStorage.setItem(
+        "softoyRPG_BedPlains_Test",
+        JSON.stringify(game)
+      );
+
+      showMessage(
+        "💾 Saved",
+        "Your Bed Plains progress has been saved."
+      );
+
+    }
+  );
+
+/* =====================================================
+   LOAD
+===================================================== */
+
+function loadSave(){
+
+  try{
+
+    const raw=
+      localStorage.getItem(
+        "softoyRPG_BedPlains_Test"
+      );
+
+    if(!raw)
+      return;
+
+    const saved=
+      JSON.parse(raw);
+
+    if(saved.player){
+
+      Object.assign(
+        game.player,
+        saved.player
+      );
+
+    }
+
+    game.defeatedEnemies=
+      saved.defeatedEnemies||0;
+
+  }catch(error){
+
+    console.log(
+      "No valid save found."
+    );
+
+  }
+
+}
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadSave();
+
+spawnInitialEnemies();
+
+updatePlayer();
+
+updateSquadUI();
+
+/* =====================================================
+   MAIN GAME LOOP
+===================================================== */
+
+let lastTime=performance.now();
+
+function loop(now){
+
+  const delta=
+    Math.min(
+      50,
+      now-lastTime
+    );
+
+  lastTime=now;
+
+  if(
+    document
+      .getElementById("world")
+      .classList.contains("active")
+  ){
+
+    movePlayer();
+
+    updateEnemies();
+
+    spawnTimer+=delta;
+
+    /*
+      Dynamic enemies appear periodically,
+      but only if there aren't already too many.
+    */
+
+    if(spawnTimer>5500){
+
+      spawnTimer=0;
+
+      dynamicSpawn();
+
+    }
+
+    cleanupEnemies();
+
+    updateCamera();
+
+  }
+
+  requestAnimationFrame(loop);
+
+}
+
+requestAnimationFrame(loop);
+
+/* =====================================================
+   FIRST-AREA TUTORIAL
+===================================================== */
+
+setTimeout(()=>{
+
+  if(
+    !game.firstBattle &&
+    game.player.level===1
+  ){
+
+    game.firstBattle=true;
+
+    showMessage(
+      "🌱 Welcome to Bed Plains",
+      "Move Hechie with the joystick. Enemies spawn outside your visible screen, so you can see them approaching instead of watching them appear suddenly. Touch an enemy to begin a battle.",
+      ()=>{
+        showMessage(
+          "⚔️ A New Journey",
+          "The nearby enemies are deliberately weak. Explore Bed Plains, gain EXP, and grow stronger before returning to the dangerous places marked on the map."
+        );
+      }
+    );
+
+  }
+
+},700);
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+  "resize",
+  ()=>{
+    updateCamera();
+  }
+);
+
+</script>
+
+</body>
+</html>
